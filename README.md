@@ -1,2 +1,8 @@
 # HHD1705
 HHD1705001
+
+ARM： Cortex-M3
+
+SRAM：128KB
+
+Flash：1MB
