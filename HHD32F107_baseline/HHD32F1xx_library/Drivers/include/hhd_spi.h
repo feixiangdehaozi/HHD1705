@@ -80,15 +80,11 @@ union SPI_CPSR_REG
 };
 struct SPI_IMSC_BITS
 {
-uint32_t RORIM:
-    1;			//Software should set this bit to enable interrupt when a Receive Overrun occurs, that is, when the Rx FIFO is full and another frame is completely received. The ARM spec implies that the preceding frame data is overwritten by the new frame data when this occurs.
-uint32_t RTIM:
-    1;			//Software should set this bit to enable interrupt when a Receive Time-out condition occurs. A Receive Time-out occurs when the Rx FIFO is not empty, and no has not been read for a “time-out period? The time-out period is the same for master and slave modes and is determined by the SPI bit rate: 32 bits at PCLK / (CPSDVSR [SCR+1]).
-uint32_t RXIM:
-    1;			//Software should set this bit to enable interrupt when the Rx FIFO is at least half full.
-uint32_t TXIM:
-    1;			//Software should set this bit to enable interrupt when the Tx FIFO is at least half empty.
-    uint32_t RSVD: 28;	//
+	uint32_t RORIM:    1;			//Software should set this bit to enable interrupt when a Receive Overrun occurs, that is, when the Rx FIFO is full and another frame is completely received. The ARM spec implies that the preceding frame data is overwritten by the new frame data when this occurs.
+	uint32_t RTIM:    1;			//Software should set this bit to enable interrupt when a Receive Time-out condition occurs. A Receive Time-out occurs when the Rx FIFO is not empty, and no has not been read for a “time-out period? The time-out period is the same for master and slave modes and is determined by the SPI bit rate: 32 bits at PCLK / (CPSDVSR [SCR+1]).
+	uint32_t RXIM:    1;			//Software should set this bit to enable interrupt when the Rx FIFO is at least half full.
+	uint32_t TXIM:    1;			//Software should set this bit to enable interrupt when the Tx FIFO is at least half empty.
+	uint32_t RSVD: 28;	//
 };
 union SPI_IMSC_REG
 {
@@ -97,10 +93,8 @@ union SPI_IMSC_REG
 };
 struct SPI_RIS_BITS
 {
-uint32_t RORRIS:
-    1;			//This bit is 1 if another frame was completely received while the Rx FIFO was full. The ARM spec implies that the preceding frame data is overwritten by the new frame data when this occurs.
-uint32_t RTRIS:
-    1;			//This bit is 1 if the Rx FIFO is not empty, and has not been read for a “time-out period? The time-out period is the same for master and slave modes and is determined by the SPI bit rate: 32 bits at PCLK / (CPSDVSR ?[SCR+1]).
+	uint32_t RORRIS:    1;			//This bit is 1 if another frame was completely received while the Rx FIFO was full. The ARM spec implies that the preceding frame data is overwritten by the new frame data when this occurs.
+	uint32_t RTRIS:    1;			//This bit is 1 if the Rx FIFO is not empty, and has not been read for a “time-out period? The time-out period is the same for master and slave modes and is determined by the SPI bit rate: 32 bits at PCLK / (CPSDVSR ?[SCR+1]).
     uint32_t RXRIS: 1;			//This bit is 1 if the Rx FIFO is at least half full.
     uint32_t TXRIS: 1;			//This bit is 1 if the Tx FIFO is at least half empty.
     uint32_t RSVD: 28;	//
@@ -221,28 +215,45 @@ int SPI_Read_FIFO(HHD32F1_SPI_TypeDef *SPI);
 void POLL_RXFIFO_NOTEMPTY(HHD32F1_SPI_TypeDef *SPI);
 
 
-#define	SPI1_SSEL_PA4  (HHD_AFIO->PA4 = 0x2)
-#define	SPI1_SCK_PA5	 (HHD_AFIO->PA5 = 0x2)
+
+/*SPI1*/
+
+#define	SPI1_SSEL_PA4    (HHD_AFIO->PA4   = 0x2)
+#define	SPI1_SCK_PA5	 (HHD_AFIO->PA5 = 0x2)	
 #define	SPI1_MISO_PA6	 (HHD_AFIO->PA6 = 0x2)
-#define	SPI1_MOSI_PA7	 (HHD_AFIO->PA7 = 0x2)
+#define	SPI1_MOSI_PA7	 (HHD_AFIO->PA7 = 0x2)	
 
-#define	SPI1_SSEL_PA15 (HHD_AFIO->JTDI_PA15  = 0x2)
-#define	SPI1_SCK_PB3	 (HHD_AFIO->JTDO_PB3   = 0x5)
-#define	SPI1_MISO_PB4	 (HHD_AFIO->JNRST_PB4  = 0x5)
-#define	SPI1_MOSI_PB5	 (HHD_AFIO->PB5        = 0x5)
-
+#define	SPI1_SSEL_PA15   (HHD_AFIO->PA15    = 0x2)
+#define	SPI1_SCK_PB3	 (HHD_AFIO->PB3   = 0x5)	
+#define	SPI1_MISO_PB4	 (HHD_AFIO->PB4  = 0x5)
+#define	SPI1_MOSI_PB5	 (HHD_AFIO->PB5  = 0x5)	
+/*SPI2*/
 #define	SPI2_SSEL_PB12 (HHD_AFIO->PB12 = 0x5)
-#define	SPI2_SCK_PB13  (HHD_AFIO->PB13 = 0x5)
+#define	SPI2_SCK_PB13  (HHD_AFIO->PB13 = 0x5)	
 #define	SPI2_MISO_PB14 (HHD_AFIO->PB14 = 0x5)
-#define	SPI2_MOSI_PB15 (HHD_AFIO->PB15 = 0x5)
+#define	SPI2_MOSI_PB15 (HHD_AFIO->PB15 = 0x5)	
 
-#define	SPI3_SSEL_PA15 (HHD_AFIO->JTDI_PA15  = 0x1)
-#define	SPI3_SCK_PB3	 (HHD_AFIO->JTDO_PB3   = 0x1)
-#define	SPI3_MISO_PB4	 (HHD_AFIO->JNRST_PB4  = 0x1)
-#define	SPI3_MOSI_PB5	 (HHD_AFIO->PB5        = 0x1)
+#define	SPI2_SSEL_PC14 (HHD_AFIO->PC14 = 0x2)
+#define	SPI2_SCK_PC15  (HHD_AFIO->PC15 = 0x2)	
 
+/*SPI3*/
+#define	SPI3_SSEL_PA15	(HHD_AFIO->PA15  = 0x1)
+#define	SPI3_SCK_PB3	(HHD_AFIO->PB3  = 0x1)	
+#define	SPI3_MISO_PB4	(HHD_AFIO->PB4  = 0x1)
+#define	SPI3_MOSI_PB5	(HHD_AFIO->PB5  = 0x1)	
+
+#define	SPI3_SSEL_PA4	(HHD_AFIO->PA4  = 0x5)
+#define	SPI3_SCK_PC10	(HHD_AFIO->PC10  = 0x5)	
+#define	SPI3_MISO_PC11	(HHD_AFIO->PC11  = 0x5)
+#define	SPI3_MOSI_PC12	(HHD_AFIO->PC12  = 0x5)	
+
+/*SPI4*/
+#define	SPI4_SSEL_PE7  (HHD_AFIO->PE7 = 0x2)
+#define	SPI4_SCK_PE8   (HHD_AFIO->PE8 = 0x2)	
+#define	SPI4_MISO_PE9  (HHD_AFIO->PE9 = 0x2)
+#define	SPI4_MOSI_PE10 (HHD_AFIO->PE10 = 0x2)
+/*SPI5*/
 #define	SPI5_SSEL_PA15  (HHD_AFIO->PA15 = 0x4)
-//#define SPI4_SSEL_PE7	GPIO_ConfigPinsAsOutput(GPIOE, PIN7)
 #define	SPI5_SCK_PD7   (HHD_AFIO->PD7 = 0x6)
 #define	SPI5_MISO_PB3  (HHD_AFIO->PB3 = 0x6)
 #define	SPI5_MOSI_PB4  (HHD_AFIO->PB4 = 0x6)
