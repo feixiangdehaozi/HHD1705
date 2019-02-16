@@ -8,124 +8,107 @@
  *   2015 12 09  ver 1.00    Prelimnary version, first Release
  *
 ******************************************************************************/
-#ifndef __DMA_H
+#ifndef __DMA_H 
 #define __DMA_H
 #include "hhd32f1xx.h"
 
 //--DMA Status Registers BITS Field---------------------------------------------------------------------------------------
-struct DMA_STATUS_BITS  						// bit description
-{
-    uint32_t MASTER_EN: 1;                  // [0] Master enable
-    uint32_t RSVD0: 3;                      // [3:1]
-    uint32_t STATE: 4;                      // [7:4] DMA state
-    uint32_t RSVD1: 24;                     // 31:8 reserved
+struct DMA_STATUS_BITS {						// bit description
+				uint32_t MASTER_EN:1;                   // [0] Master enable
+				uint32_t RSVD0:3;                       // [3:1]
+				uint32_t STATE:4;                       // [7:4] DMA state
+				uint32_t RSVD1:24;                      // 31:8 reserved
 };
-union DMA_STATUS_REG
-{
-    uint32_t				all;
-    struct DMA_STATUS_BITS	bit;
+union DMA_STATUS_REG {
+				uint32_t				all;
+				struct DMA_STATUS_BITS	bit;
 };
 
-struct DMA_CFG_BITS  							// bit description
-{
-    uint32_t MASTER_EN: 1;                  // [0] Master enable
-    uint32_t RSVD0: 31;                     // 31:1 reserved
+struct DMA_CFG_BITS {							// bit description
+				uint32_t MASTER_EN:1;                   // [0] Master enable
+				uint32_t RSVD0:31;                      // 31:1 reserved
 };
-union DMA_CFG_REG
-{
-    uint32_t				all;
-    struct DMA_CFG_BITS	bit;
+union DMA_CFG_REG {
+				uint32_t				all;
+				struct DMA_CFG_BITS	bit;
 };
 
-struct CHNL_BITS  					 	    // bit description
-{
-    uint32_t CHNL1: 1;           // [0] DMA request
-    uint32_t CHNL2: 1;           // [1] DMA request
-    uint32_t CHNL3: 1;           // [2] DMA request
-    uint32_t CHNL4: 1;           // [3] DMA request
-    uint32_t CHNL5: 1;           // [4] DMA request
-    uint32_t CHNL6: 1;           // [5] DMA request
-    uint32_t CHNL7: 1;           // [6] DMA request
-    uint32_t RESVE: 25;          //
+struct CHNL_BITS {					 	    // bit description
+				uint32_t CHNL1:1;            // [0] DMA request
+				uint32_t CHNL2:1;            // [1] DMA request
+				uint32_t CHNL3:1;            // [2] DMA request
+				uint32_t CHNL4:1;            // [3] DMA request
+				uint32_t CHNL5:1;            // [4] DMA request
+				uint32_t CHNL6:1;            // [5] DMA request
+				uint32_t CHNL7:1;            // [6] DMA request
+				uint32_t RESVE:25;           // 
 };
 
-union CTRL_BASE_PTR_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CTRL_BASE_PTR_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_SW_REQUEST_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_SW_REQUEST_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_USEBURST_SET_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_USEBURST_SET_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_USEBURST_CLR_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_USEBURST_CLR_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_REQ_MASK_SET_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_REQ_MASK_SET_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_REQ_MASK_CLR_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_REQ_MASK_CLR_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
 
-union CHNL_ENABLE_SET_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_ENABLE_SET_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
 
-union CHNL_ENABLE_CLR_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_ENABLE_CLR_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_PRIORITY_SET_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_PRIORITY_SET_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_PRIORITY_CLR_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_PRIORITY_CLR_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_IRQ_STATUS_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_IRQ_STATUS_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
-union CHNL_IRQ_ENABLE_REG
-{
-    uint32_t				all;
-    struct CHNL_BITS	bit;
+union CHNL_IRQ_ENABLE_REG {
+				uint32_t				all;
+				struct CHNL_BITS	bit;
 };
 
 
 /*------------- DMA (DMA) ----------------------------*/
-/** @addtogroup HHD_DMA DMA Engine
+/** @addtogroup GT_DMA DMA Engine 
   @{
 */
 typedef struct
@@ -155,41 +138,37 @@ typedef struct
 
 
 //--DMA channel cfg ---------------------------------------------------------------------------------------
-struct DMA_CHNLCFG_BITS  						// bit description
-{
-    uint32_t CYCLE_CTRL: 3;                 // [2:0]   cycle control
-    uint32_t RSVD0: 1;                      // [3]
-    uint32_t N_MINUS_1: 11;                 // [13:4]  n_minus_1
-    uint32_t R_POWER: 4;                    // [17:14] R Power
-    uint32_t RSVD1: 6;                      // [23:18] reserved
-    uint32_t SRC_SIZE: 2;                   // [25:24] source size
-    uint32_t SRC_INC: 2;                    // [27:26] source increment type
-    uint32_t DST_SIZE: 2;                   // [29:28] destination size
-    uint32_t DST_INC: 2;                    // [31:30] destination increment type
+struct DMA_CHNLCFG_BITS {						// bit description
+				uint32_t CYCLE_CTRL:3;                  // [2:0]   cycle control
+				uint32_t RSVD0:1;                       // [3]
+				uint32_t N_MINUS_1:11;                  // [13:4]  n_minus_1
+				uint32_t R_POWER:4;                     // [17:14] R Power
+				uint32_t RSVD1:6;                       // [23:18] reserved
+				uint32_t SRC_SIZE:2;                    // [25:24] source size
+				uint32_t SRC_INC:2;                     // [27:26] source increment type
+				uint32_t DST_SIZE:2;                    // [29:28] destination size
+				uint32_t DST_INC:2;                     // [31:30] destination increment type
 };
 
-union DMA_CHNLCFG_REG
-{
-    uint32_t				all;
-    struct DMA_CHNLCFG_BITS	bit;
+union DMA_CHNLCFG_REG {
+				uint32_t				all;
+				struct DMA_CHNLCFG_BITS	bit;
 };
 
-union DMA_SRCENDPTR_REG
-{
-    uint32_t				all;
+union DMA_SRCENDPTR_REG {
+				uint32_t				all;
 };
 
-union DMA_DSTENDPTR_REG
-{
-    uint32_t				all;
+union DMA_DSTENDPTR_REG {
+				uint32_t				all;
 };
 
 typedef struct
 {
-    __IO	union DMA_CHNLCFG_REG			DMA_CHNLCFG;			//DMA channel config
-    __IO	union DMA_SRCENDPTR_REG		DMA_SRCENDPTR;		//source end pointer
-    __IO	union DMA_DSTENDPTR_REG		DMA_DSTENDPTR;		//destination end pointer
-    __I  uint32_t RESVD;															//
+	__IO	union DMA_CHNLCFG_REG			DMA_CHNLCFG;			//DMA channel config
+	__IO	union DMA_SRCENDPTR_REG		DMA_SRCENDPTR;		//source end pointer
+	__IO	union DMA_DSTENDPTR_REG		DMA_DSTENDPTR;		//destination end pointer
+	__I  uint32_t RESVD;															//
 } DMA_DATASTRUCT_TypeDef;
 /*@}*/ /* end of group */
 

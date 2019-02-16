@@ -45,7 +45,7 @@ void SendArry(unsigned char *buff, unsigned int len)
 **                  IICInterrupt: 1---Enable IIC Interrupt 0---Disable IIC Interrupt
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 void IIC_Init(HHD32F1_IIC_TypeDef *IIC, uint8_t Mode, uint32_t ClockRate, uint32_t SlaveAddress)
 {
@@ -109,7 +109,7 @@ void IIC_Init(HHD32F1_IIC_TypeDef *IIC, uint8_t Mode, uint32_t ClockRate, uint32
 ** parameters:      None
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 uint16_t IIC_GetIICStatus(HHD32F1_IIC_TypeDef *IIC)
 {
@@ -124,7 +124,7 @@ uint16_t IIC_GetIICStatus(HHD32F1_IIC_TypeDef *IIC)
 ** parameters:      Read bit
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 uint8_t IIC_ReadFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONSET )
 {
@@ -139,11 +139,11 @@ uint8_t IIC_ReadFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONSET )
 ** parameters:      Set bit
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 void IIC_SetFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONSET )
 {
-    IIC->CONSET.all = IIC_CONSET;      /* Set flag */
+	IIC->CONSET.all = IIC_CONSET;      /* Set flag */
 }
 
 /*****************************************************************************
@@ -154,11 +154,11 @@ void IIC_SetFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONSET )
 ** parameters:      Clear bit
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 void IIC_ClearFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONCLR )
 {
-    IIC->CONCLR.all = IIC_CONCLR;      /* Clear flag */
+	IIC->CONCLR.all = IIC_CONCLR;      /* Clear flag */
 }
 
 /*****************************************************************************
@@ -169,11 +169,11 @@ void IIC_ClearFlag(HHD32F1_IIC_TypeDef *IIC, uint8_t IIC_CONCLR )
 ** parameters:      Send data
 **
 ** Returned value:	None
-**
+** 
 *****************************************************************************/
 void IIC_SendByte(HHD32F1_IIC_TypeDef *IIC, uint8_t DataByte )
 {
-    IIC->DAT.all = DataByte;
+	IIC->DAT.all = DataByte; 
 }
 
 
@@ -185,12 +185,12 @@ void IIC_SendByte(HHD32F1_IIC_TypeDef *IIC, uint8_t DataByte )
 ** parameters:      None
 **
 ** Returned value:	IIC Data
-**
+** 
 *****************************************************************************/
 
 uint8_t IIC_GetByte(HHD32F1_IIC_TypeDef *IIC)
 {
-    return(IIC->DAT.all);
+	return(IIC->DAT.all);
 }
 
 /*****************************************************************************
@@ -200,109 +200,109 @@ uint8_t IIC_GetByte(HHD32F1_IIC_TypeDef *IIC)
 *
 * parameters:       None
 * Returned value:   None
-*
+* 
 *****************************************************************************/
 void IIC_IRQHandler(HHD32F1_IIC_TypeDef *IIC)
 {
-    uint16_t StatValue;
+	uint16_t StatValue;
 
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
-
-    StatValue = IIC_GetIICStatus(IIC);
-    // 0x4B--SLA+W transmitted but no ACK
-    // 0x54--Data byte in DAT transmitted;no ACK received.
-    if 	((StatValue & 0xff == 0x4B) || (StatValue & 0xff == 0x54))
-    {
-        IIC_SetFlag(IIC, IIC_CONSET_STO);				// Set Stop flag
-        IICCtrl->IICMasterState = IIC_OK;
-        IIC_ClearFlag(IIC, IIC_CONCLR_SIC | IIC_CONCLR_STAC | IIC_CONCLR_TXRXC );
-        return;
-    }
-
-    if(IIC->CONSET.all & IIC_CONSET_MASL)
-    {
-        StatValue &= ~(0x740);
-        switch ( StatValue & 0xff )
-        {
-            case IIC_M_TX_START:				/* 0x01: A Start condition is issued. */
-                if (IICCtrl->Restart == 1)
-                {
-                    //RX SLAD IIC_M_TX_RESTART:
-                    IICCtrl->Restart = 0;
-                    IICCtrl->RdIndex = 0;
-                    IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[0] + 1); 			/* Send SLA with R bit set */
-                    IICCtrl->WrIndex++;
-                    IIC_ClearFlag(IIC, IIC_CONCLR_SIC | IIC_CONCLR_STAC | IIC_CONCLR_TXRXC);
-                }
-                else
-                {
-                    // Start master transmit process
-                    IICCtrl->WrIndex = 0;
-                    IICCtrl->RdIndex = 0;
-                    IIC_SetFlag(IIC, IIC_CONSET_TXRX); 		 // Set tx flag
-                    IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[0]); // Transmit address first
-                    IICCtrl->WrIndex++;
-                    IIC_ClearFlag(IIC, IIC_CONCLR_SIC | IIC_CONCLR_STAC);
-                }
-                break;
-
-            case IIC_M_TX_RESTART:			/* 0x10: A repeated started is issued */
-                IICCtrl->RdIndex = 0;
-                IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]); 			/* Send SLA with R bit set */
-                IIC_ClearFlag(IIC, IIC_CONCLR_SIC | IIC_CONCLR_STAC);
-                break;
-
-            case IIC_M_TX_SLAW_ACK:			/* 0x0B: Regardless, it's a ACK */
-                if ((IIC->CONSET.all & 0x1) == 0x1) // Transmit
-                {
-                    if (IICCtrl->IICWriteLength == 1)
-                    {
-                        IIC_SetFlag(IIC, IIC_CONSET_STO);      			// Set Stop flag
-                        IICCtrl->IICMasterState = IIC_NO_DATA;
-                    }
-                    else
-                    {
-                        IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]); // Transmit
-                    }
-                    IIC_ClearFlag(IIC, IIC_CONCLR_SIC);
-                }
-                else
-                {
-                    if ( (IICCtrl->RdIndex + 1) < IICCtrl->IICReadLength ) // Read form slave device
-                    {
-                        /* Will go to State 0x50 */
-                        IIC_SetFlag(IIC, IIC_CONSET_AA);					/* assert ACK after data is received */
-                    }
-                    else
-                    {
-                        /* Last byte will no ack, Will go to State 0x58 */
-                        IIC_ClearFlag(IIC, IIC_CONCLR_AAC);				/* assert NACK after data is received */
-                    }
-                    IIC_ClearFlag(IIC, IIC_CONCLR_SIC | IIC_CONCLR_STAC);
-                }
-                break;
-
-            case IIC_M_TX_DAT_ACK:			/* 0x14: Data byte has been transmitted, regardless ACK or NACK */
-                if ( IICCtrl->WrIndex < IICCtrl->IICWriteLength )
-                {
-                    IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]);
-                }
-                else		/* this should be the last one */
-                {
-                    if ( IICCtrl->IICReadLength != 0 )
-                    {
-                        IICCtrl->Restart = 0;
-                        IICCtrl->RdIndex = 0;
-                        if(IICCtrl->Re_Start)
-                        {
-                            IIC_SendByte(IIC, IICCtrl->IICMasterBuffer[0] + 1); 			/* Send SLA with R bit set */
-                            IIC_SetFlag(IIC, IIC_CONSET_STA);				/* Set Repeated-start flag */
-                        }
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
+	
+	StatValue = IIC_GetIICStatus(IIC);
+	// 0x4B--SLA+W transmitted but no ACK 
+	// 0x54--Data byte in DAT transmitted;no ACK received.
+	if 	((StatValue&0xff == 0x4B) || (StatValue&0xff == 0x54))
+	{
+			IIC_SetFlag(IIC,IIC_CONSET_STO);				// Set Stop flag
+			IICCtrl->IICMasterState = IIC_OK;
+			IIC_ClearFlag(IIC,IIC_CONCLR_SIC| IIC_CONCLR_STAC |IIC_CONCLR_TXRXC );
+			return;	
+	}
+ 
+	if(IIC->CONSET.all&IIC_CONSET_MASL)
+	{
+		StatValue &= ~(0x740);
+		switch ( StatValue&0xff )
+		{
+			case IIC_M_TX_START:				/* 0x01: A Start condition is issued. */
+				if (IICCtrl->Restart == 1)
+				{
+					//RX SLAD IIC_M_TX_RESTART:
+					IICCtrl->Restart = 0;
+					IICCtrl->RdIndex = 0;
+					IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[0] + 1); 			/* Send SLA with R bit set */
+					IICCtrl->WrIndex++;
+					IIC_ClearFlag(IIC,IIC_CONCLR_SIC | IIC_CONCLR_STAC |IIC_CONCLR_TXRXC);
+				}
+				else
+				{
+					// Start master transmit process
+					IICCtrl->WrIndex = 0;
+					IICCtrl->RdIndex = 0;
+					IIC_SetFlag(IIC,IIC_CONSET_TXRX); 		 // Set tx flag
+					IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[0]);  // Transmit address first 
+					IICCtrl->WrIndex++;
+					IIC_ClearFlag(IIC,IIC_CONCLR_SIC | IIC_CONCLR_STAC);
+				}
+				break;
+		
+			case IIC_M_TX_RESTART:			/* 0x10: A repeated started is issued */
+				IICCtrl->RdIndex = 0;
+				IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]); 			/* Send SLA with R bit set */
+				IIC_ClearFlag(IIC,IIC_CONCLR_SIC | IIC_CONCLR_STAC);
+				break;
+		
+			case IIC_M_TX_SLAW_ACK:			/* 0x0B: Regardless, it's a ACK */
+				if ((IIC->CONSET.all & 0x1)==0x1) // Transmit
+				{
+					if (IICCtrl->IICWriteLength == 1)
+					{
+						IIC_SetFlag(IIC,IIC_CONSET_STO);      			// Set Stop flag
+						IICCtrl->IICMasterState = IIC_NO_DATA;
+					}
+					else
+					{
+						IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]); // Transmit
+					}
+					IIC_ClearFlag(IIC,IIC_CONCLR_SIC);
+				}
+				else
+				{
+					if ( (IICCtrl->RdIndex + 1) < IICCtrl->IICReadLength ) // Read form slave device
+					{
+						/* Will go to State 0x50 */
+						IIC_SetFlag(IIC,IIC_CONSET_AA);					/* assert ACK after data is received */
+					}
+					else
+					{
+						/* Last byte will no ack, Will go to State 0x58 */
+						IIC_ClearFlag(IIC,IIC_CONCLR_AAC);				/* assert NACK after data is received */
+					}
+					IIC_ClearFlag(IIC,IIC_CONCLR_SIC | IIC_CONCLR_STAC);
+				}
+				break;	
+		
+			case IIC_M_TX_DAT_ACK:			/* 0x14: Data byte has been transmitted, regardless ACK or NACK */
+				if ( IICCtrl->WrIndex < IICCtrl->IICWriteLength )
+				{   
+					IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[IICCtrl->WrIndex++]);	
+				}
+				else		/* this should be the last one */
+				{
+					if ( IICCtrl->IICReadLength != 0 )	  
+					{
+						IICCtrl->Restart = 0;
+						IICCtrl->RdIndex = 0;
+						if(IICCtrl->Re_Start)
+						{
+							IIC_SendByte(IIC,IICCtrl->IICMasterBuffer[0] + 1); 			/* Send SLA with R bit set */
+							IIC_SetFlag(IIC,IIC_CONSET_STA);				/* Set Repeated-start flag */
+						}
 
                         else
                         {
@@ -1045,8 +1045,8 @@ void IIC2_IRQHandler(HHD32F1_IIC_TypeDef *IIC)
 
         IIC->CONCLR.all = IIC_CONCLR_SIC + IIC_CONCLR_STAC;
 
-    }
-    return;
+	}
+	return;
 }
 /*****************************************************************************
 * Function name:    IIC_WriteByte
@@ -1057,36 +1057,36 @@ void IIC2_IRQHandler(HHD32F1_IIC_TypeDef *IIC)
 					SubAddr:  Slave chip register address
 					Value :   Value write to slave chip register address
 * Returned value:   None
-*
+* 
 *****************************************************************************/
 
 void IIC_WriteByte(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAddr, uint8_t Value)
 {
-    uint8_t i;
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	uint8_t i;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
 
-    IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
-    IICCtrl->IICMasterBuffer[1] = SubAddr;	   // Chip register address
-    IICCtrl->IICMasterBuffer[2] = Value;
+	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
+	IICCtrl->IICMasterBuffer[1] = SubAddr;	   // Chip register address
+	IICCtrl->IICMasterBuffer[2] = Value;
+	
+	IICCtrl->Re_Start = 0;
 
-    IICCtrl->Re_Start = 0;
-
-    IICCtrl->IICReadLength = 0; // Read length
-    IICCtrl->IICWriteLength = 3;	// Write length
+	IICCtrl->IICReadLength = 0; // Read length
+	IICCtrl->IICWriteLength = 3;	// Write length
 
 
-    IIC_SetFlag(IIC, IIC_CONSET_STA); //Set start signal
+	IIC_SetFlag(IIC,IIC_CONSET_STA); //Set start signal
 
-    IICCtrl->IICMasterState = IIC_IDLE;
-    while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
+	IICCtrl->IICMasterState = IIC_IDLE;
+	while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
 
-    i = 0xFF;
-    while(i--);
+	i = 0xFF;
+	while(i--);
 }
 
 
@@ -1100,37 +1100,37 @@ void IIC_WriteByte(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAd
 					Buff: 	  Write value pointer
 					Length:   Length to write
 * Returned value:   None
-*
+* 
 *****************************************************************************/
 void IIC_WriteArray(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAddr, uint8_t *Buff,
                     uint8_t Length)
 {
-    uint8_t i;
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	uint8_t i;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
 
-    IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
-    IICCtrl->IICMasterBuffer[1] = SubAddr;
+	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
+	IICCtrl->IICMasterBuffer[1] = SubAddr;
 
-    for( i = 0; i < Length; i++ )
-    {
-        IICCtrl->IICMasterBuffer[i + 2] = *( Buff + i ); // Write value to slave chip register
-    }
+	for( i = 0; i < Length; i++ )
+	{
+	 	IICCtrl->IICMasterBuffer[i+2] = *( Buff + i ); // Write value to slave chip register  		
+	}
+	
+	IICCtrl->Re_Start = 0;
+	IICCtrl->IICReadLength = 0;
+	IICCtrl->IICWriteLength = Length+2; // Write Length
+	IIC_SetFlag(IIC,IIC_CONSET_STA); // Start
 
-    IICCtrl->Re_Start = 0;
-    IICCtrl->IICReadLength = 0;
-    IICCtrl->IICWriteLength = Length + 2; // Write Length
-    IIC_SetFlag(IIC, IIC_CONSET_STA); // Start
+	IICCtrl->IICMasterState = IIC_IDLE;
+	while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
 
-    IICCtrl->IICMasterState = IIC_IDLE;
-    while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
-
-    i = 0xFF;
-    while(i--);
+	i = 0xFF;
+	while(i--);
 }
 
 /*****************************************************************************
@@ -1141,34 +1141,34 @@ void IIC_WriteArray(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubA
 * parameters:       SlaveAddress: Slave chip address
 					SubAddr:  Slave chip register address
 * Returned value:   return read value
-*
+* 
 *****************************************************************************/
 uint8_t IIC_ReadByte(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAddr)
 {
-    uint8_t i;
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	uint8_t i;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
 
-    IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
-    IICCtrl->IICMasterBuffer[1] = SubAddr;
+	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
+	IICCtrl->IICMasterBuffer[1] = SubAddr;
 
-    IICCtrl->IICWriteLength = 2;
-    IICCtrl->IICReadLength = 1;
+	IICCtrl->IICWriteLength = 2;
+	IICCtrl->IICReadLength = 1;
+	
+	IICCtrl->Re_Start = 1;
+	IIC_SetFlag(IIC,IIC_CONSET_STA); // Start
 
-    IICCtrl->Re_Start = 1;
-    IIC_SetFlag(IIC, IIC_CONSET_STA); // Start
+	IICCtrl->IICMasterState = IIC_IDLE;
+	while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
 
-    IICCtrl->IICMasterState = IIC_IDLE;
-    while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
-
-    i = 0xFF;
-    while(i--);
-
-    return(IICCtrl->IICSlaveBuffer[0]);
+	i = 0xFF;
+	while(i--);
+	
+	return(IICCtrl->IICSlaveBuffer[0]);
 }
 
 /*****************************************************************************
@@ -1186,22 +1186,22 @@ uint8_t IIC_ReadByte(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t Sub
 void IIC_ReadArray(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAddr, uint8_t Lenth,
                    uint8_t *Buffer)
 {
-    uint8_t i;
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	uint8_t i;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
+		
+	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
+	IICCtrl->IICMasterBuffer[1] = SubAddr;
 
-    IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
-    IICCtrl->IICMasterBuffer[1] = SubAddr;
-
-    IICCtrl->IICWriteLength = 2;
-    IICCtrl->IICReadLength = Lenth;
-
-    IICCtrl->Re_Start = 1;           // Repeat Start contion.
-    IIC_SetFlag(IIC, IIC_CONSET_STA); // Start
+	IICCtrl->IICWriteLength = 2;
+	IICCtrl->IICReadLength = Lenth;
+	
+	IICCtrl->Re_Start = 1;
+	IIC_SetFlag(IIC,IIC_CONSET_STA); // Start
 
     IICCtrl->IICMasterState = IIC_IDLE;
     while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
@@ -1217,8 +1217,8 @@ void IIC_ReadArray(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAd
 
     }
 
-    i = 0xFF;
-    while(i--);
+	i = 0xFF;
+	while(i--);
 }
 
 
@@ -1230,33 +1230,33 @@ void IIC_ReadArray(HHD32F1_IIC_TypeDef *IIC, uint8_t SlaveAddress, uint8_t SubAd
 * parameters:       SlaveAddress: Slave chip address
 					SubAddr:  Slave chip register address
 * Returned value:   return read value
-*
+* 
 *****************************************************************************/
 uint8_t IIC_SlaveResponseRd(HHD32F1_IIC_TypeDef *IIC, uint8_t SubAddr, uint8_t len)
 {
-    uint8_t i;
-    IIC_CtrlBlk_TypeDef *IICCtrl;
+	uint8_t i;
+	IIC_CtrlBlk_TypeDef* IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
 
-    IICCtrl->IICMasterBuffer[0] = SubAddr; // Slave chip address
+	IICCtrl->IICMasterBuffer[0] = SubAddr; // Slave chip address
 
-    IICCtrl->IICWriteLength = 2;
-    IICCtrl->IICReadLength = len;
+	IICCtrl->IICWriteLength = 2;
+	IICCtrl->IICReadLength = len;
 
-    IICCtrl->Re_Start = 1;
-    //	IIC_SetFlag(IIC,IIC_CONSET_STA); // Start
+	IICCtrl->Re_Start = 1;
+//	IIC_SetFlag(IIC,IIC_CONSET_STA); // Start
 
-    IICCtrl->IICMasterState = IIC_IDLE;
-    while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
+	IICCtrl->IICMasterState = IIC_IDLE;
+	while( IICCtrl->IICMasterState != IIC_OK ); // Wait for finished
 
-    i = 0xFF;
-    while(i--);
-
-    return(IICCtrl->IICSlaveBuffer[0]);
+	i = 0xFF;
+	while(i--);
+	
+	return(IICCtrl->IICSlaveBuffer[0]);
 }
 
 /*****************************************************************************
@@ -1267,29 +1267,29 @@ uint8_t IIC_SlaveResponseRd(HHD32F1_IIC_TypeDef *IIC, uint8_t SubAddr, uint8_t l
 * parameters:       SlaveAddress: Slave chip address
 					SubAddr:  Slave chip register address
 * Returned value:   return read value
-*
+* 
 *****************************************************************************/
 void IIC_SlaveGetData(HHD32F1_IIC_TypeDef *IIC, uint8_t SubAddr, uint8_t len)
 {
     //	uint8_t i;
     IIC_CtrlBlk_TypeDef *IICCtrl;
 
-    if(IIC == I2C1)
-        IICCtrl = &IIC1_CtrlBlk;
-    else
-        IICCtrl = &IIC2_CtrlBlk;
+	if(IIC==I2C1)
+		IICCtrl = &IIC1_CtrlBlk;
+	else
+		IICCtrl = &IIC2_CtrlBlk;
 
-    //	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
-    //	IICCtrl->IICMasterBuffer[1] = SubAddr;
+//	IICCtrl->IICMasterBuffer[0] = SlaveAddress; // Slave chip address
+//	IICCtrl->IICMasterBuffer[1] = SubAddr;
 
-    IICCtrl->IICWriteLength = 0;
-    IICCtrl->IICReadLength = len;
+	IICCtrl->IICWriteLength = 0;
+	IICCtrl->IICReadLength = len;
+	
+//	IICCtrl->Re_Start = 1;
 
-    //	IICCtrl->Re_Start = 1;
+	IICCtrl->IICSlaveState = IIC_IDLE;
 
-    IICCtrl->IICSlaveState = IIC_IDLE;
-
-    return;
+  return;	
 }
 
 

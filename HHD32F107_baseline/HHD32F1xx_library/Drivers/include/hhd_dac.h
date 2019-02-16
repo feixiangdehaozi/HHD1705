@@ -15,34 +15,30 @@
 #include "hhd32f1xx.h"
 
 //--ADC Registers BITS Field---------------------------------------------------------------------------------------
-struct DAC_CR_BITS
-{
-    uint32_t DIV: 8;	  	//		DAC divder
-    uint32_t MODE: 1;	 // 		DAC mode, sync or burst mode
-    uint32_t CLR: 1;		 // 		DAC controller & buffer clear
-    uint32_t INTEN: 1;	 // 		DAC interrupt enable
-    uint32_t DMAEN: 1;	 // 		DAC DMA request enable
-    uint32_t DACEN: 1;	 // 		DAC enable to start
-    uint32_t RSVD: 2;	 //
-    uint32_t BUFSTAT: 1;	// 		DAC Buffer state,0 : no empty
-    //                               1 : empty
-    uint32_t RSVD2: 16;	//
+struct DAC_CR_BITS	{
+			uint32_t DIV:8;	  	//		DAC divder
+			uint32_t MODE:1;	  // 		DAC mode, sync or burst mode
+			uint32_t CLR:1;		  // 		DAC controller & buffer clear
+			uint32_t INTEN:1;	  // 		DAC interrupt enable
+			uint32_t DMAEN:1;	  // 		DAC DMA request enable
+			uint32_t DACEN:1;	  // 		DAC enable to start
+			uint32_t RSVD:2;	  //
+			uint32_t BUFSTAT:1;	// 		DAC Buffer state,0 : no empty
+						//                               1 : empty
+			uint32_t RSVD2:16;	//
 };
-union DAC_CR_REG
-{
-    uint32_t			all;
-    struct  DAC_CR_BITS		bit;
+union DAC_CR_REG {
+				uint32_t			all;
+				struct  DAC_CR_BITS		bit;
 };
 
-struct DAC_BUF_BITS
-{
-    uint32_t DACBUF: 10;	//		DAC buffer port
-    uint32_t RSVD: 22;	 //
+struct DAC_BUF_BITS	{
+			uint32_t DACBUF:10;	//		DAC buffer port
+			uint32_t RSVD:22;	  // 
 };
-union DAC_BUF_REG
-{
-    uint32_t			all;
-    struct  DAC_BUF_BITS		bit;
+union DAC_BUF_REG {
+				uint32_t			all;
+				struct  DAC_BUF_BITS		bit;
 };
 
 /* ================================================================================ */

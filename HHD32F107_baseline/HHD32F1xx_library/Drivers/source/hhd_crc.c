@@ -25,28 +25,28 @@ Return Value	CRC calculation result
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12			
 *****************************************************************************/
-uint16_t CRC_CCITT(uint8_t *str, uint16_t strlen, uint32_t crcseed)
+uint16_t CRC_CCITT(uint8_t * str, uint16_t strlen,uint32_t crcseed)
 {
-    uint16_t crcvalue;
-    //initial CRC
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
-    CRC->MODE.bit.CRC_POLY = 0;
-    CRC->SEED.all = crcseed;
-    CRC->MODE.bit.SEED_SET = 1;
+	uint16_t crcvalue;
+	//initial CRC
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
+	CRC->MODE.bit.CRC_POLY=0;
+	CRC->SEED.all = crcseed; 
+	CRC->MODE.bit.SEED_SET=1;
 
-    //calculate CRC
-    while ( strlen != 0)
-    {
-        CRC->DATA.BYTE = *str++;
-        strlen --;
-    }
-    crcvalue = (uint16_t) CRC->DATA.all;
-
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
-
-    return crcvalue;
+	//calculate CRC
+	while ( strlen != 0)
+	{
+		 CRC->DATA.BYTE = *str++;
+		 strlen --;
+	}
+	crcvalue=(uint16_t) CRC->DATA.all;
+	
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
+	
+	return crcvalue;
 }
 /*****************************************************************************
 Function Name	CRC_16
@@ -59,28 +59,28 @@ Return Value	CRC calculation result
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12			
 *****************************************************************************/
-uint16_t CRC_16(uint8_t *str, uint16_t strlen, uint32_t crcseed)
+uint16_t CRC_16(uint8_t * str, uint16_t strlen,uint32_t crcseed)
 {
-    uint16_t crcvalue;
-    //initial CRC
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
-    CRC->MODE.bit.CRC_POLY = 1;
-    CRC->SEED.all = crcseed;
-    CRC->MODE.bit.SEED_SET = 1;
+	uint16_t crcvalue;
+	//initial CRC
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
+	CRC->MODE.bit.CRC_POLY=1;
+	CRC->SEED.all = crcseed; 
+	CRC->MODE.bit.SEED_SET=1;
 
-    //calculate CRC
-    while ( strlen != 0)
-    {
-        CRC->DATA.HALFWORD = *str++;
-        strlen --;
-    }
-    crcvalue = (uint16_t) CRC->DATA.all;
-
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
-
-    return crcvalue;
+	//calculate CRC
+	while ( strlen != 0)
+	{
+		 CRC->DATA.HALFWORD = *str++;
+		 strlen --;
+	}
+	crcvalue=(uint16_t) CRC->DATA.all;
+	
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
+	
+	return crcvalue;
 }
 /*****************************************************************************
 Function Name	CRC_32
@@ -93,28 +93,28 @@ Return Value	CRC calculation result
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12			
 *****************************************************************************/
-uint32_t CRC_32(uint8_t *str, uint16_t strlen, uint32_t crcseed)
+uint32_t CRC_32(uint8_t * str, uint16_t strlen,uint32_t crcseed)
 {
-    uint32_t crcvalue;
-    //initial CRC
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
-    CRC->MODE.bit.CRC_POLY = 2;
-    CRC->SEED.all = crcseed;
-    CRC->MODE.bit.SEED_SET = 1;
+	uint32_t crcvalue;
+	//initial CRC
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1;
+	CRC->MODE.bit.CRC_POLY=2;
+	CRC->SEED.all = crcseed; 
+	CRC->MODE.bit.SEED_SET=1;
 
-    //calculate CRC
-    while ( strlen != 0)
-    {
-        CRC->DATA.WORD = *str++;
-        strlen --;
-    }
-    crcvalue = CRC->DATA.all;
-
-    SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
-
-    return crcvalue;
+	//calculate CRC
+	while ( strlen != 0)
+	{
+		 CRC->DATA.WORD = *str++;
+		 strlen --;
+	}
+	crcvalue=CRC->DATA.all;
+	
+	SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 0;
+	
+	return crcvalue;
 }
 
 /******************************************************************************

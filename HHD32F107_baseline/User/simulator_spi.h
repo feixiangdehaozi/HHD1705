@@ -15,10 +15,10 @@
 #define SPI4_MOSI_PIN		PIN12
 #define SPI4_MOSI_PORT		GPIOC
 
-#define SPI4_CS				SPI4_CS_PORT->OUT.bit.IO7
-#define SPI4_CLK		    SPI4_SCK_PORT->OUT.bit.IO10
+#define SPI4_CS				SPI4_CS_PORT->OUT.bit.IO7 
+#define SPI4_CLK		    SPI4_SCK_PORT->OUT.bit.IO10	
 #define SPI4_MOSI			SPI4_MOSI_PORT->OUT.bit.IO12
-#define SPI4_MISO			(GPIOE->PIN.bit.IO11)
+#define SPI4_MISO			(GPIOC->PIN.bit.IO11)
 
 
 

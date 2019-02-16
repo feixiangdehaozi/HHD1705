@@ -11,7 +11,7 @@
 #include "hhd32f1xx.h"
 #include "hhd_sys.h"
 
-#ifndef __IAP_H
+#ifndef __IAP_H 
 #define __IAP_H
 
 #define	SECTORSIZE          0x200         //512 bytes sector size
@@ -34,7 +34,7 @@
 #define IRC_NOT_POWERED		  0x07
 
 void IAP_Flash_Erase(uint32_t addr);
-void IAP_Flash_Program(uint32_t addr, uint32_t data);
+void IAP_Flash_Program(uint32_t addr,uint32_t data);
 
 #endif /* end __IAP_H */
 /*****************************************************************************

@@ -4,7 +4,7 @@
   * @author  MCD Application Team
   * @version V1.0.0
   * @date    11/20/2009
-  * @brief   This file contains all the functions prototypes for the netconf.c
+  * @brief   This file contains all the functions prototypes for the netconf.c 
   *          file.
   ******************************************************************************
   * @copy
@@ -17,18 +17,29 @@
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
   * <h2><center>&copy; COPYRIGHT 2009 STMicroelectronics</center></h2>
-  */
+  */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __NETCONF_H
 #define __NETCONF_H
 
 #ifdef __cplusplus
-extern "C" {
+ extern "C" {
 #endif
-
+	 
 #define LCD_USER 0
 #define UART_USER 0
+
+#define XVC_PACKAGE_LEN 2048
+	 
+typedef struct xvcshift_package_struct
+{
+	int bitsLen;
+	int bytesLen;
+	int receBytesLen;
+	unsigned char pRec_Datas[XVC_PACKAGE_LEN];
+	unsigned char result[XVC_PACKAGE_LEN/2];
+} XVC_SHIFT;
 
 /* Includes ------------------------------------------------------------------*/
 void LwIP_Init(void);

@@ -1,7 +1,7 @@
 /*****************************************************************************
- *   hhd_wdt.h:  Header file for  HHD32F0
+ *   gt_wdt.h:  Header file for Gorgetek G32F0
  *
- *   Copyright(C) 2015,  Technology
+ *   Copyright(C) 2015, Gorge Technology
  *   All rights reserved.
  *
  *   History
@@ -18,7 +18,7 @@ extern uint32_t MainClock;
 Function Name	WDT_Init
 Function Definition	void WDT_Init (void)
 Function Description	Initial WDT module
-Input Parameters	No
+Input Parameters	No 
 Return Value	No
 Condition	No
 Function called	-
@@ -27,16 +27,16 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_Init (void)
 {
-    //enable WDT PCLK
-    SYSCON->SYSAPB1CLKCTRL.bit.WWDTCLK = 1;
-
-    return;
+	//enable WDT PCLK
+	SYSCON->SYSAPB1CLKCTRL.bit.WWDTCLK=1;
+	
+	return;
 }
 /*****************************************************************************
 Function Name	WDT_Deinit
 Function Definition	void WDT_Deinit (void)
 Function Description	De-Initial WDT module
-Input Parameters	No
+Input Parameters	No 
 Return Value	No
 Condition	No
 Function called	-
@@ -45,27 +45,27 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_Deinit(void)
 {
-    //disable WDT PCLK
-    SYSCON->SYSAPB1CLKCTRL.bit.WWDTCLK = 0;
-    return;
+	//disable WDT PCLK
+	SYSCON->SYSAPB1CLKCTRL.bit.WWDTCLK=0;	
+	return;
 }
 /*****************************************************************************
 Function Name	WDT_SetWindowValue
 Function Definition	void WDT_SetWindowValue (uint32_t intticks,uint32_t windowticks)
-Function Description	Set WDT two windows value.
+Function Description	Set WDT two windows value. 
 Input Parameters	intticks: if WDT counter decrease to intticks value, the interrupt is generated
-windowticks: if WDT counter decrease to windowticks value, no more feed valid.
+windowticks: if WDT counter decrease to windowticks value, no more feed valid. 
 Return Value	No
 Condition	No
 Function called	-
 
 Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
-void WDT_SetWindowValue (uint32_t intticks, uint32_t windowticks)
+void WDT_SetWindowValue (uint32_t intticks,uint32_t windowticks)
 {
-    WDT->WARNINT.bit.WARNINT = intticks;
-    WDT->WINDOW.bit.WDWINDOW = windowticks;
-    return;
+	WDT->WARNINT.bit.WARNINT=intticks;
+	WDT->WINDOW.bit.WDWINDOW=windowticks;
+	return;
 }
 
 /*****************************************************************************
@@ -81,9 +81,9 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_Feed (void)
 {
-    WDT->FEED.bit.WDFEED  = 0xAA;
-    WDT->FEED.bit.WDFEED  = 0x55;
-    return;
+	WDT->FEED.bit.WDFEED  = 0xAA;
+	WDT->FEED.bit.WDFEED  = 0x55;
+	return;	
 }
 /*****************************************************************************
 Function Name	WDT_SetIntervalinTick
@@ -98,9 +98,9 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_SetIntervalinTick(uint32_t ticks)
 {
-    WDT->TC.bit.WDTC = ticks;
-
-    return;
+	WDT->TC.bit.WDTC=ticks;
+	
+	return;
 }
 /*****************************************************************************
 Function Name	WDT_SetIntervalinMiliSec
@@ -115,17 +115,17 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_SetIntervalinMiliSec(uint32_t ms)
 {
-    uint32_t ticks;
-    if (SYSCON->WDTOSCCTRL.bit.WDTCLKSRC)
-        ticks = 32000;
-    else
-        ticks = MainClock;
-    //convert mili second to ticks
-    ticks = (ms * ticks / 1000) >> 2;
-    //set WDT timeout interval
-    WDT->TC.bit.WDTC = ticks;
-
-    return;
+	uint32_t ticks;
+	if (SYSCON->WDTOSCCTRL.bit.WDTCLKSRC)
+		ticks=32000;
+	else
+		ticks=MainClock;
+	//convert mili second to ticks
+	ticks=(ms*ticks/1000)>>2;
+	//set WDT timeout interval
+	WDT->TC.bit.WDTC=ticks;
+	
+	return;
 }
 /*****************************************************************************
 Function Name	WDT_EnableResetSystem
@@ -140,8 +140,8 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_EnableResetSystem(void)
 {
-    WDT->MOD.bit.WDRESET = 1;
-    return;
+	WDT->MOD.bit.WDRESET=1;
+	return;
 }
 /*****************************************************************************
 Function Name	WDT_ClearlntFlag
@@ -156,10 +156,10 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_ClearIntFlag(void)
 {
-    //clr time out flag
-    WDT->MOD.bit.WDTOF = 0;
-    //clr window int flag
-    WDT->MOD.bit.WDINT = 1;
+	//clr time out flag
+	WDT->MOD.bit.WDTOF=0;
+	//clr window int flag
+	WDT->MOD.bit.WDINT=1;
 }
 /*****************************************************************************
 Function Name	WDT_ClearlntFlag
@@ -174,12 +174,12 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 uint32_t WDT_GetCounterValue (void)
 {
-    return WDT->TV.all;
+	return WDT->TV.all;
 }
 /*****************************************************************************
 Function Name	WDT_EnableLock
 Function Definition	void WDT_EnableLock (void)
-Function Description	Lock WDT Setting. Once WDT is locked, you can not do any changing to WDT,
+Function Description	Lock WDT Setting. Once WDT is locked, you can not do any changing to WDT, 
 including enable/disable timer, changing of WDT timer out interval, and reset system setting when time out.
 Input Parameters	No
 Return Value	No
@@ -190,10 +190,10 @@ Last Chang Date: 2015/09/12			By:YL
 *****************************************************************************/
 void WDT_EnableLock (void)
 {
-    WDT->MOD.bit.WDLOCKCLK = 1;
-    WDT->MOD.bit.WDLOCKDP = 1;
-    WDT->MOD.bit.WDLOCKEN = 1;
-
-    return;
+	WDT->MOD.bit.WDLOCKCLK=1;
+	WDT->MOD.bit.WDLOCKDP=1;
+	WDT->MOD.bit.WDLOCKEN=1;
+	
+	return;
 }
-
+ 

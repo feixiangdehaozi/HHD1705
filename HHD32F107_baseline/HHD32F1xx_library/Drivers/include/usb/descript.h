@@ -21,15 +21,14 @@
 #pragma pack(1)
 
 /* Command structure */
-typedef struct COMMAND
-{
-    BYTE  bmRequestType;
-    BYTE  bRequest;
-    WORD  wValue;
-    WORD  wIndex;
-    WORD  wLength;
-} COMMAND;
-typedef COMMAND *PCOMMAND;
+typedef struct COMMAND {
+  BYTE  bmRequestType;
+  BYTE  bRequest;
+  WORD  wValue;
+  WORD  wIndex;
+  WORD  wLength;
+  } COMMAND;
+typedef COMMAND * PCOMMAND;
 
 /* Command bit fields */
 #define M_CMD_DATADIR   0x80
@@ -86,65 +85,61 @@ typedef COMMAND *PCOMMAND;
 #define M_FTR_DEVREMWAKE 0x0001
 
 /* Standard Device Descriptor */
-typedef struct STD_DEV_DSCR
-{
-    BYTE  bLength;
-    BYTE  bDescriptorType;
-    WORD  bcdUSB;
-    BYTE  bDeviceClass;
-    BYTE  bDeviceSubClass;
-    BYTE  bDeviceProtocol;
-    BYTE  bMaxPacketSize0;
-    WORD  idVendor;
-    WORD  idProduct;
-    WORD  bcdDevice;
-    BYTE  iManufacturer;
-    BYTE  iProduct;
-    BYTE  iSerialNumber;
-    BYTE  bNumConfigurations;
-} STD_DEV_DSCR;
-typedef STD_DEV_DSCR *PSTD_DEV_DSCR;
+typedef struct STD_DEV_DSCR {
+  BYTE  bLength;
+  BYTE  bDescriptorType;
+  WORD  bcdUSB;
+  BYTE  bDeviceClass;
+  BYTE  bDeviceSubClass;
+  BYTE  bDeviceProtocol;
+  BYTE  bMaxPacketSize0;
+  WORD  idVendor;
+  WORD  idProduct;
+  WORD  bcdDevice;
+  BYTE  iManufacturer;
+  BYTE  iProduct;
+  BYTE  iSerialNumber;
+  BYTE  bNumConfigurations;
+  } STD_DEV_DSCR;
+typedef STD_DEV_DSCR * PSTD_DEV_DSCR;
 
 /* Standard Configuration Descriptor */
-typedef struct STD_CFG_DSCR
-{
-    BYTE  bLength;
-    BYTE  bDescriptorType;
-    WORD  wTotalLength;
-    BYTE  bNumInterfaces;
-    BYTE  bConfigurationValue;
-    BYTE  iConfiguration;
-    BYTE  bmAttributes;
-    BYTE  bMaxPower;
-} STD_CFG_DSCR;
-typedef STD_CFG_DSCR *PSTD_CFG_DSCR;
+typedef struct STD_CFG_DSCR {
+  BYTE  bLength;
+  BYTE  bDescriptorType;
+  WORD  wTotalLength;
+  BYTE  bNumInterfaces;
+  BYTE  bConfigurationValue;
+  BYTE  iConfiguration;
+  BYTE  bmAttributes;
+  BYTE  bMaxPower;
+  } STD_CFG_DSCR;
+typedef STD_CFG_DSCR * PSTD_CFG_DSCR;
 
 /* Standard Interface Descriptor */
-typedef struct STD_IF_DSCR
-{
-    BYTE  bLength;
-    BYTE  bDescriptorType;
-    BYTE  bInterfaceNumber;
-    BYTE  bAlternateSetting;
-    BYTE  bNumEndpoints;
-    BYTE  bInterfaceClass;
-    BYTE  bInterfaceSubClass;
-    BYTE  bInterfaceProtocol;
-    BYTE  iInterface;
-} STD_IF_DSCR;
-typedef STD_IF_DSCR *PSTD_IF_DSCR;
+typedef struct STD_IF_DSCR {
+  BYTE  bLength;
+  BYTE  bDescriptorType;
+  BYTE  bInterfaceNumber;
+  BYTE  bAlternateSetting;
+  BYTE  bNumEndpoints;
+  BYTE  bInterfaceClass;
+  BYTE  bInterfaceSubClass;
+  BYTE  bInterfaceProtocol;
+  BYTE  iInterface;
+  } STD_IF_DSCR;
+typedef STD_IF_DSCR * PSTD_IF_DSCR;
 
 /* Standard Endpoint Descriptor */
-typedef struct STD_EP_DSCR
-{
-    BYTE  bLength;
-    BYTE  bDescriptorType;
-    BYTE  bEndpointAddress;
-    BYTE  bmAttributes;
-    WORD  wMaxPacketSize;
-    BYTE  bInterval;
-} STD_EP_DSCR;
-typedef STD_EP_DSCR *PSTD_EP_DSCR;
+typedef struct STD_EP_DSCR {
+  BYTE  bLength;
+  BYTE  bDescriptorType;
+  BYTE  bEndpointAddress;
+  BYTE  bmAttributes;
+  WORD  wMaxPacketSize;
+  BYTE  bInterval;
+  } STD_EP_DSCR;
+typedef STD_EP_DSCR * PSTD_EP_DSCR;
 
 
 #endif /* _DESCRIPT_H_ */

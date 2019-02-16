@@ -19,48 +19,44 @@
 /****************************************
   FIFORead
 ****************************************/
-void FIFORead (int nEP, int nBytes, void *pDst)
+void FIFORead (int nEP, int nBytes, void * pDst)
 {
-    int     nCount;
-    BYTE   *pby;
-    int     nAddr;
+int     nCount;
+BYTE *  pby;
+int     nAddr;
 
-    if (nBytes)
-    {
-        nAddr = M_FIFO_EP0 + nEP;
-        nCount = nBytes;
-        pby = (BYTE *)pDst;
-        while (nCount)
-        {
-            *pby++ = *((BYTE *)nAddr);
-            nCount--;
-        }
+if (nBytes) {
+  nAddr = M_FIFO_EP0+nEP;
+  nCount = nBytes;
+  pby = (BYTE *)pDst;
+  while (nCount) {
+    *pby++ = *((BYTE *)nAddr);
+    nCount--;
     }
+  }
 
-    return;
+return;
 }
 
 
 /****************************************
   FIFOWrite
 ****************************************/
-void FIFOWrite (int nEP, int nBytes, void *pSrc)
+void FIFOWrite (int nEP, int nBytes, void * pSrc)
 {
-    int     nCount;
-    BYTE   *pby;
-    int     nAddr;
+int     nCount;
+BYTE *  pby;
+int     nAddr;
 
-    if (nBytes)
-    {
-        nAddr = M_FIFO_EP0 + nEP;
-        nCount = nBytes;
-        pby = (BYTE *)pSrc;
-        while (nCount)
-        {
-            *((BYTE *)nAddr) = *pby++;
-            nCount--;
-        }
+if (nBytes) {
+  nAddr = M_FIFO_EP0+nEP;
+  nCount = nBytes;
+  pby = (BYTE *)pSrc;
+  while (nCount) {
+   *((BYTE *)nAddr) = *pby++;
+    nCount--;
     }
+  }
 
-    return;
+return;
 }

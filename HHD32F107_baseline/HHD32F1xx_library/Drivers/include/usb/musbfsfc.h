@@ -106,8 +106,8 @@ typedef unsigned short WORD;
 #endif
 
 /* Function prototypes */
-void FIFORead (int, int, void *);
-void FIFOWrite (int, int, void *);
+void FIFORead (int, int, void*);
+void FIFOWrite (int, int, void*);
 void USBReset (void);
 void InitialiseDesc (void);
 void Endpoint0 (int);

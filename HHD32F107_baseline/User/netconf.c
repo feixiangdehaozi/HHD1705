@@ -70,59 +70,59 @@ extern void server_init(void);
   */
 void LwIP_Init(void)
 {
-    struct ip_addr ipaddr;
-    struct ip_addr netmask;
-    struct ip_addr gw;
-    uint8_t macaddress[6] = {0XAA, 0XBB, 0XCC, 0XDD, 0XEE, 0XFF};
+  struct ip_addr ipaddr;
+  struct ip_addr netmask;
+  struct ip_addr gw;
+  uint8_t macaddress[6]={0XAA,0XBB,0XCC,0XDD,0XEE,0XFF};
 
-    /* Initializes the dynamic memory heap defined by MEM_SIZE.*/
-    mem_init();
+  /* Initializes the dynamic memory heap defined by MEM_SIZE.*/
+  mem_init();
 
-    /* Initializes the memory pools defined by MEMP_NUM_x.*/
-    memp_init();
+  /* Initializes the memory pools defined by MEMP_NUM_x.*/
+  memp_init();
 
 #if LWIP_DHCP
-    ipaddr.addr = 0;
-    netmask.addr = 0;
-    gw.addr = 0;
-    macaddress[5] = CLIENTMAC6;
-    Server = NOT_SELECTED;
+  ipaddr.addr = 0;
+  netmask.addr = 0;
+  gw.addr = 0;
+  macaddress[5]=CLIENTMAC6;
+  Server = NOT_SELECTED;
 #else
-    IP4_ADDR(&ipaddr, 192, 168, 2, 198);
-    IP4_ADDR(&netmask, 255, 255, 255, 0);
-    IP4_ADDR(&gw, 192, 168, 2, 1);
+  IP4_ADDR(&ipaddr, 192, 168, 2, 198);
+  IP4_ADDR(&netmask, 255, 255, 255, 0);
+  IP4_ADDR(&gw, 192, 168, 2, 1);
 #endif
 
-    Set_MAC_Address(macaddress);
+  Set_MAC_Address(macaddress);
 
-    /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
-              struct ip_addr *netmask, struct ip_addr *gw,
-              void *state, err_t (* init)(struct netif *netif),
-              err_t (* input)(struct pbuf *p, struct netif *netif))
+  /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
+            struct ip_addr *netmask, struct ip_addr *gw,
+            void *state, err_t (* init)(struct netif *netif),
+            err_t (* input)(struct pbuf *p, struct netif *netif))
+    
+   Adds your network interface to the netif_list. Allocate a struct
+  netif and pass a pointer to this structure as the first argument.
+  Give pointers to cleared ip_addr structures when using DHCP,
+  or fill them with sane numbers otherwise. The state pointer may be NULL.
 
-     Adds your network interface to the netif_list. Allocate a struct
-    netif and pass a pointer to this structure as the first argument.
-    Give pointers to cleared ip_addr structures when using DHCP,
-    or fill them with sane numbers otherwise. The state pointer may be NULL.
+  The init function pointer must point to a initialization function for
+  your ethernet netif interface. The following code illustrates it's use.*/
+  netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
 
-    The init function pointer must point to a initialization function for
-    your ethernet netif interface. The following code illustrates it's use.*/
-    netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
-
-    /*  Registers the default network interface.*/
-    netif_set_default(&netif);
+  /*  Registers the default network interface.*/
+  netif_set_default(&netif);
 
 
 #if LWIP_DHCP
-    /*  Creates a new DHCP client for this interface on the first call.
-    Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
-    the predefined regular intervals after starting the client.
-    You can peek in the netif->dhcp struct for the actual DHCP status.*/
-    dhcp_start(&netif);
+  /*  Creates a new DHCP client for this interface on the first call.
+  Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
+  the predefined regular intervals after starting the client.
+  You can peek in the netif->dhcp struct for the actual DHCP status.*/
+  dhcp_start(&netif);
 #endif
 
-    /*  When the netif is fully configured this function must be called.*/
-    netif_set_up(&netif);
+  /*  When the netif is fully configured this function must be called.*/
+  netif_set_up(&netif);
 
 }
 
@@ -133,8 +133,8 @@ void LwIP_Init(void)
   */
 void LwIP_Pkt_Handle(void)
 {
-    /* Read a received packet from the Ethernet buffers and send it to the lwIP for handling */
-    ethernetif_input(&netif);
+  /* Read a received packet from the Ethernet buffers and send it to the lwIP for handling */
+  ethernetif_input(&netif);
 }
 
 /**
@@ -145,32 +145,32 @@ void LwIP_Pkt_Handle(void)
 void LwIP_Periodic_Handle(__IO uint32_t localtime)
 {
 
-    /* TCP periodic process every 250 ms */
-    if (localtime - TCPTimer >= TCP_TMR_INTERVAL)
-    {
-        TCPTimer =  localtime;
-        tcp_tmr();
-    }
-    /* ARP periodic process every 5s */
-    if (localtime - ARPTimer >= ARP_TMR_INTERVAL)
-    {
-        ARPTimer =  localtime;
-        etharp_tmr();
-    }
+  /* TCP periodic process every 250 ms */
+  if (localtime - TCPTimer >= TCP_TMR_INTERVAL)
+  {
+    TCPTimer =  localtime;
+    tcp_tmr();
+  }
+  /* ARP periodic process every 5s */
+  if (localtime - ARPTimer >= ARP_TMR_INTERVAL)
+  {
+    ARPTimer =  localtime;
+    etharp_tmr();
+  }
 
 #if LWIP_DHCP
-    /* Fine DHCP periodic process every 500ms */
-    if (localtime - DHCPfineTimer >= DHCP_FINE_TIMER_MSECS)
-    {
-        DHCPfineTimer =  localtime;
-        dhcp_fine_tmr();
-    }
-    /* DHCP Coarse periodic process every 60s */
-    if (localtime - DHCPcoarseTimer >= DHCP_COARSE_TIMER_MSECS)
-    {
-        DHCPcoarseTimer =  localtime;
-        dhcp_coarse_tmr();
-    }
+  /* Fine DHCP periodic process every 500ms */
+  if (localtime - DHCPfineTimer >= DHCP_FINE_TIMER_MSECS)
+  {
+    DHCPfineTimer =  localtime;
+    dhcp_fine_tmr();
+  }
+  /* DHCP Coarse periodic process every 60s */
+  if (localtime - DHCPcoarseTimer >= DHCP_COARSE_TIMER_MSECS)
+  {
+    DHCPcoarseTimer =  localtime;
+    dhcp_coarse_tmr();
+  }
 #endif
 
 }
@@ -181,120 +181,120 @@ void LwIP_Periodic_Handle(__IO uint32_t localtime)
   * @retval None
   */
 void Display_Periodic_Handle(__IO uint32_t localtime)
-{
-    /* 250 ms */
-    if (localtime - DisplayTimer >= LCD_TIMER_MSECS)
+{ 
+  /* 250 ms */
+  if (localtime - DisplayTimer >= LCD_TIMER_MSECS)
+  {
+    DisplayTimer = localtime;
+
+    /* We have got a new IP address so update the display */
+    if (IPaddress != netif.ip_addr.addr)
     {
-        DisplayTimer = localtime;
+      __IO uint8_t iptab[4];
+      uint8_t iptxt[20];
 
-        /* We have got a new IP address so update the display */
-        if (IPaddress != netif.ip_addr.addr)
-        {
-            __IO uint8_t iptab[4];
-            uint8_t iptxt[20];
+      /* Read the new IP address */
+      IPaddress = netif.ip_addr.addr;
 
-            /* Read the new IP address */
-            IPaddress = netif.ip_addr.addr;
+      iptab[0] = (uint8_t)(IPaddress >> 24);
+      iptab[1] = (uint8_t)(IPaddress >> 16);
+      iptab[2] = (uint8_t)(IPaddress >> 8);
+      iptab[3] = (uint8_t)(IPaddress);
 
-            iptab[0] = (uint8_t)(IPaddress >> 24);
-            iptab[1] = (uint8_t)(IPaddress >> 16);
-            iptab[2] = (uint8_t)(IPaddress >> 8);
-            iptab[3] = (uint8_t)(IPaddress);
+      sprintf((char*)iptxt, "   %d.%d.%d.%d    ", iptab[3], iptab[2], iptab[1], iptab[0]);
 
-            sprintf((char *)iptxt, "   %d.%d.%d.%d    ", iptab[3], iptab[2], iptab[1], iptab[0]);
-
-            /* Display the new IP address */
+      /* Display the new IP address */
 #if LWIP_DHCP
-            if (netif.flags & NETIF_FLAG_DHCP)
-            {
-                /* Display the IP address */
-                LCD_DisplayStringLine(Line7, "IP address assigned ");
-                LCD_DisplayStringLine(Line8, "  by a DHCP server  ");
-                LCD_DisplayStringLine(Line9, iptxt);
-                Delay(LCD_DELAY);
+      if (netif.flags & NETIF_FLAG_DHCP)
+      {        
+		/* Display the IP address */
+		LCD_DisplayStringLine(Line7, "IP address assigned ");
+        LCD_DisplayStringLine(Line8, "  by a DHCP server  ");
+        LCD_DisplayStringLine(Line9, iptxt);
+		Delay(LCD_DELAY);
+		
+		/** Start the client/server application: only when a dynamic IP address has been obtained  **/
+	    /* Clear the LCD */
+        LCD_Clear(Black);
+	    LCD_SetBackColor(Black);
+        LCD_SetTextColor(White);		   	
+       
+	    iptab[0] = (uint8_t)(IPaddress >> 24);
+        iptab[1] = (uint8_t)(IPaddress >> 16);
+        iptab[2] = (uint8_t)(IPaddress >> 8);
+        iptab[3] = (uint8_t)(IPaddress);
+        	   
+	    sprintf((char*)iptxt, "is: %d.%d.%d.%d ", iptab[3], iptab[2], iptab[1], iptab[0]);		
+       
+	    //LCD_DisplayStringLine(Line0, " You are configured ");
+	    //LCD_DisplayStringLine(Line2, iptxt);
 
-                /** Start the client/server application: only when a dynamic IP address has been obtained  **/
-                /* Clear the LCD */
-                LCD_Clear(Black);
-                LCD_SetBackColor(Black);
-                LCD_SetTextColor(White);
-
-                iptab[0] = (uint8_t)(IPaddress >> 24);
-                iptab[1] = (uint8_t)(IPaddress >> 16);
-                iptab[2] = (uint8_t)(IPaddress >> 8);
-                iptab[3] = (uint8_t)(IPaddress);
-
-                sprintf((char *)iptxt, "is: %d.%d.%d.%d ", iptab[3], iptab[2], iptab[1], iptab[0]);
-
-                //LCD_DisplayStringLine(Line0, " You are configured ");
-                //LCD_DisplayStringLine(Line2, iptxt);
-
-                if(Server)
-                {
-                    //LCD_DisplayStringLine(Line1, "as a server, your IP");
-
-                    /* Initialize the server application */
-                    server_init();
-                }
-                else
-                {
-                    //LCD_DisplayStringLine(Line1, "as a client, your IP");
-
-                    /* Configure the IO Expander */
-                    IOE_Config();
-
-                    /* Enable the Touch Screen and Joystick interrupts */
-                    IOE_ITConfig(IOE_ITSRC_TSC);
-
-                    /* Initialize the client application */
-                    client_init();
-                }
-            }
-            else
+	    if(Server)
+	    {
+	      //LCD_DisplayStringLine(Line1, "as a server, your IP");
+		 
+		  /* Initialize the server application */
+	      server_init(); 
+	    }
+	    else
+	    {
+	      //LCD_DisplayStringLine(Line1, "as a client, your IP");
+		 
+		  /* Configure the IO Expander */
+          IOE_Config(); 
+      
+          /* Enable the Touch Screen and Joystick interrupts */
+          IOE_ITConfig(IOE_ITSRC_TSC);
+		  
+		  /* Initialize the client application */
+	      client_init();
+	    }	        
+      }
+      else
 #endif
-            {
-                /* Display the IP address */
-                //LCD_DisplayStringLine(Line8, "  Static IP address   ");
-                //    LCD_DisplayStringLine(Line9, iptxt);
-                //		Delay(LCD_DELAY);
-            }
-        }
-
-#if LWIP_DHCP
-
-        else if (IPaddress == 0)
-        {
-            /* We still waiting for the DHCP server */
-            //LCD_DisplayStringLine(Line4, "     Looking for    ");
-            //  LCD_DisplayStringLine(Line5, "     DHCP server    ");
-            //  LCD_DisplayStringLine(Line6, "     please wait... ");
-
-            LedToggle &= 3;
-
-            STM_EVAL_LEDToggle((Led_TypeDef)(LedToggle++));
-
-            /* If no response from a DHCP server for MAX_DHCP_TRIES times */
-            /* stop the dhcp client and set a static IP address */
-            if (netif.dhcp->tries > MAX_DHCP_TRIES)
-            {
-                struct ip_addr ipaddr;
-                struct ip_addr netmask;
-                struct ip_addr gw;
-
-                //LCD_DisplayStringLine(Line7, "    DHCP timeout    ");
-
-                dhcp_stop(&netif);
-
-                IP4_ADDR(&ipaddr, 192, 168, 0, 8);
-                IP4_ADDR(&netmask, 255, 255, 255, 0);
-                IP4_ADDR(&gw, 192, 168, 0, 1);
-
-                netif_set_addr(&netif, &ipaddr, &netmask, &gw);
-
-            }
-        }
-#endif
+      {
+        /* Display the IP address */
+		//LCD_DisplayStringLine(Line8, "  Static IP address   ");
+    //    LCD_DisplayStringLine(Line9, iptxt);	    
+//		Delay(LCD_DELAY);
+      }           
     }
+
+#if LWIP_DHCP
+    
+    else if (IPaddress == 0)
+    {
+      /* We still waiting for the DHCP server */
+	  //LCD_DisplayStringLine(Line4, "     Looking for    ");
+    //  LCD_DisplayStringLine(Line5, "     DHCP server    ");
+    //  LCD_DisplayStringLine(Line6, "     please wait... ");
+
+      LedToggle &= 3;
+
+      STM_EVAL_LEDToggle((Led_TypeDef)(LedToggle++));
+
+      /* If no response from a DHCP server for MAX_DHCP_TRIES times */
+	  /* stop the dhcp client and set a static IP address */
+	  if (netif.dhcp->tries > MAX_DHCP_TRIES)
+      {
+        struct ip_addr ipaddr;
+        struct ip_addr netmask;
+        struct ip_addr gw;
+
+        //LCD_DisplayStringLine(Line7, "    DHCP timeout    ");        
+
+        dhcp_stop(&netif);
+
+        IP4_ADDR(&ipaddr, 192, 168, 0, 8);
+        IP4_ADDR(&netmask, 255, 255, 255, 0);
+        IP4_ADDR(&gw, 192, 168, 0, 1);
+
+        netif_set_addr(&netif, &ipaddr , &netmask, &gw);
+
+      }
+    }
+#endif
+  } 
 }
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/

@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   hhd_adc.c:  Header file for  HHD32F
  *
- *   Copyright(C) 2015,  Technology
+ *   Copyright(C) 2015, GORGE Technology
  *   All rights reserved.
  *
  *   History
@@ -25,83 +25,73 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 void ADC_Init(HHD32F_ADC_TypeDef *ADC, uint32_t conversionrate)
 {
 
-    uint32_t temp, div;
-    if(APB2Clock < 20000000)
-        (*SYSCON).ADCCLKDIV.bit.DIV = 1;	//
-    else if(APB2Clock < 40000000)
-        (*SYSCON).ADCCLKDIV.bit.DIV = 2;	//
-    else if(APB2Clock < 60000000)
-        (*SYSCON).ADCCLKDIV.bit.DIV = 3;	//
-    else
-        (*SYSCON).ADCCLKDIV.bit.DIV = 4;
+	uint32_t temp,div;
+	if(APB2Clock<20000000)
+		(*SYSCON).ADCCLKDIV.bit.DIV=1;	//
+	else if(APB2Clock<40000000)
+		(*SYSCON).ADCCLKDIV.bit.DIV=2;	//
+	else if(APB2Clock<60000000)
+		(*SYSCON).ADCCLKDIV.bit.DIV=3;	//
+	else
+		(*SYSCON).ADCCLKDIV.bit.DIV=4;
+	
+	if(ADC==ADC1)
+	{
+		(*SYSCON).SYSAPB2CLKCTRL.bit.ADC1CLK = 1;
+	}
+	else if(ADC==ADC2)
+	{
+		(*SYSCON).SYSAPB2CLKCTRL.bit.ADC2CLK = 1;
+	}
 
-    if(ADC == ADC1)
-    {
-        (*SYSCON).SYSAPB2CLKCTRL.bit.ADC1CLK = 1;
-    }
-    else if(ADC == ADC2)
-    {
-        (*SYSCON).SYSAPB2CLKCTRL.bit.ADC2CLK = 1;
-    }
-#if 0
-    else if(ADC == ADC3)
-    {
-        (*SYSCON).SYSAPB2CLKCTRL.bit.ADC3CLK = 1;
-    }
-#endif
-    //Power up ADC
-    (*ADC).CR.bit.PD = 0;
-    //enable clock of ADC digital
+	//Power up ADC
+	(*ADC).CR.bit.PD = 0;
+	//enable clock of ADC digital
 
-    //reset ADC digital
-    if(ADC == ADC1)
-    {
-        (*SYSCON).APB2RESET.bit.ADC1RSTN = 1;
-        (*SYSCON).APB2RESET.bit.ADC1RSTN = 0;
-    }
-    else if(ADC == ADC2)
-    {
-        (*SYSCON).APB2RESET.bit.ADC2RSTN = 1;
-        (*SYSCON).APB2RESET.bit.ADC2RSTN = 0;
-    }
-#if 0 // modify by wang 2019.1.11
-    else if(ADC == ADC3)
-    {
-        (*SYSCON).APB2RESET.bit.ADC3RSTN = 1;
-        (*SYSCON).APB2RESET.bit.ADC3RSTN = 0;
-    }
-#endif
-    //limit convertion rate to 1M/s
-    if (conversionrate > 1000000)
-        conversionrate = 1000000;
-    conversionrate = conversionrate << 4;
+	//reset ADC digital
+	if(ADC==ADC1)
+	{
+		(*SYSCON).APB2RESET.bit.ADC1RSTN = 1;
+		(*SYSCON).APB2RESET.bit.ADC1RSTN = 0;
+	}
+	else if(ADC==ADC2)
+	{
+		(*SYSCON).APB2RESET.bit.ADC2RSTN = 1;
+		(*SYSCON).APB2RESET.bit.ADC2RSTN = 0;
+	}
 
-    //caculate clk divider
-    div = APB2Clock / conversionrate / (*SYSCON).ADCCLKDIV.bit.DIV;
+	
+	//limit convertion rate to 1M/s
+	if (conversionrate>1000000)
+		conversionrate = 1000000;
+	conversionrate=conversionrate<<4;
+	
+	//caculate clk divider
+	div = APB2Clock/conversionrate/(*SYSCON).ADCCLKDIV.bit.DIV;
 
-    if (((div * conversionrate) != APB2Clock) && (APB2Clock > 16000000 * div))
-        div++;
+	if (((div*conversionrate)!=APB2Clock)&&(APB2Clock>16000000*div))
+		div++;
+	
+	//set up divider
+	(*ADC).CR.bit.CLKDIV = div;
 
-    //set up divider
-    (*ADC).CR.bit.CLKDIV = div;
+	//insert a delay
+	temp=0xff;
+	while (temp--);
+	(*ADC).CR.bit.BURST = BURSTMODE;	
+	//select external sample clk
+	(*ADC).CR.bit.SCMODE=1;
+	(*ADC).CR.bit.CNVEN=0x1;
 
-    //insert a delay
-    temp = 0xff;
-    while (temp--);
-    (*ADC).CR.bit.BURST = BURSTMODE;
-    //select external sample clk
-    (*ADC).CR.bit.SCMODE = 1;
-    (*ADC).CR.bit.CNVEN = 0x1;
+	//wait untile adc ready
+	while((*ADC).STAT.bit.ADCRDY ==0);
 
-    //wait untile adc ready
-    while((*ADC).STAT.bit.ADCRDY == 0);
-
-    return;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_DeInit
@@ -112,81 +102,79 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 void ADC_DeInit(HHD32F_ADC_TypeDef *ADC)
 {
+	
+	(*ADC).INTEN.all=0;
+	(*ADC).STAT.all = 0xFFFFFFFF;
+	
+	//Power down ADC
+	(*ADC).CR.bit.PD = 1;
+	//Disable ADC clock divider
+  (*SYSCON).ADCCLKDIV.all = 0;	
 
-    (*ADC).INTEN.all = 0;
-    (*ADC).STAT.all = 0xFFFFFFFF;
-
-    //Power down ADC
-    (*ADC).CR.bit.PD = 1;
-    //Disable ADC clock divider
-    (*SYSCON).ADCCLKDIV.all = 0;
-
-    return;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_SetupChannels
 Function Definition	Void ADC_SetupChannels (uint32_t channelassign, uint32_t triggermode)
 Function Description	Select AD channels to be converted and AD conversion trigger mode
-Input Parameters		channelassign: AD channel and DR assignment. Ref CHSEL register description.
+Input Parameters		channelassign: AD channel and DR assignment. Ref CHSEL register description. 
 										Example (AD1<<ADC_DR0SEL)|(AD2<<ADC_DR0SEL), channel AD1 conversion value will be in DR1, and channel AD2 conversion value will be in DR4. DRncan not be duplicated.
 										triggermode;	BURSTMODE/TRIGGERMODE
 Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetupChannels (HHD32F_ADC_TypeDef *ADC, uint32_t drxen, uint32_t channelassign,
-                        uint32_t triggermode)
+void ADC_SetupChannels (HHD32F_ADC_TypeDef *ADC,uint32_t channelassign, uint32_t triggermode)
 {
-    uint32_t i;
-    uint32_t temp;
-    uint32_t adcchannel = 0;
+	uint32_t i;
+	uint32_t temp;
+	uint32_t adcchannel=0;
+	
+	//setup DR conversion enable
+	for (i=0;i<32;i=i+4)
+	{
+		temp = (channelassign & (0xF<<i))>>i;
+		if (temp!=0)
+		{
+			if (temp==0xF)
+				temp=0;
 
-    //setup DR conversion enable
-    for (i = 0; i < 32; i = i + 4)
-    {
-        temp = (channelassign & (0xF << i)) >> i;
-        //if (temp!=0)
-        //{
-        //	if (temp==0xF)
-        //		temp=0;
-
-        //if (temp<8)
-        adcchannel |= temp << i;
-
-        //ADC->CR.bit.CNVEN |= 1<<(i/4);
-        ADC->CR.bit.CNVEN = drxen;
-        //}
-    }
-
-    //Setup channel
-    (*ADC).CHSEL.all = adcchannel;
-    (*ADC).CR.bit.SCMODE = 0;
-    //Select burst mode or triggermode
-    if (triggermode == BURSTMODE)
-        (*ADC).CR.bit.START = 0;
-    (*ADC).CR.bit.BURST = triggermode;
-    (*ADC).CR.bit.SCMODE = 1;
-    if (triggermode == TRIGGERMODE)
-    {
-        //wait untile adc ready
-        while(!ADC->STAT.bit.ADCRDY );
-    }
-    return;
+			if (temp<8)
+			adcchannel |= temp<<i;
+			
+			ADC->CR.bit.CNVEN |= 1<<(i/4);								
+		}		
+	}
+	
+	//Setup channel
+	(*ADC).CHSEL.all = adcchannel;
+	(*ADC).CR.bit.SCMODE=0;		
+	//Select burst mode or triggermode
+	if (triggermode == BURSTMODE)
+		(*ADC).CR.bit.START=0;
+	(*ADC).CR.bit.BURST = triggermode;
+	(*ADC).CR.bit.SCMODE=1;		
+	if (triggermode==TRIGGERMODE)
+	{
+		//wait untile adc ready
+		while(!ADC->STAT.bit.ADCRDY );		
+	}
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_SetTrigger
 Function Definition	Void ADC_SetTrigger(uint8_t triggersrc, uint8_t edge)
 Function Description	Setup trigger source signal if ADC is in trigger mode
 Input Parameters	Triggersrc: select one option
-										ADC_TRIGGER_SOFTWAER,
-										ADC_TRIGGER_CT16B2_CAP0,
-										ADC_TRIGGER_CT16B2_CAP1,
+										ADC_TRIGGER_SOFTWAER, 
+										ADC_TRIGGER_CT16B2_CAP0, 
+										ADC_TRIGGER_CT16B2_CAP1, 
 										ADC_TRIGGER_CT16B2_MAT0,
 										ADC_TRIGGER_CT16B2_MAT1,
 										ADC_TRIGGER_CT16B3_MAT0,
@@ -196,17 +184,17 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetTrigger(HHD32F_ADC_TypeDef *ADC, uint8_t triggersrc, uint8_t edge)
+void ADC_SetTrigger(HHD32F_ADC_TypeDef *ADC,uint8_t triggersrc, uint8_t edge)
 {
-    //set up ADC start mode
-    (*ADC).CR.bit.START = triggersrc;
-    (*ADC).CR.bit.EDGE	= edge;
-
-    while(!ADC->STAT.bit.ADCRDY );
-
-    return;
+	//set up ADC start mode 
+	(*ADC).CR.bit.START = triggersrc;
+	(*ADC).CR.bit.EDGE	= edge;
+	
+	while(!ADC->STAT.bit.ADCRDY );	
+	
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_SetHighCmp0
@@ -218,15 +206,15 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetHighCmp0(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel)
+void ADC_SetHighCmp0(HHD32F_ADC_TypeDef *ADC,uint32_t val, uint8_t selchannel)
 {
-    (*ADC).HILMT.bit.HILMT0 = val;
-    if (selchannel == CHN0)
-        selchannel = 0;
-    (*ADC).HILMT.bit.CHNSEL0 = selchannel;
-    return;
+	(*ADC).HILMT.bit.HILMT0 = val;
+	if (selchannel==CHN0)
+		selchannel=0;
+	(*ADC).HILMT.bit.CHNSEL0 = selchannel;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_SetHighCmp1
@@ -238,17 +226,17 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetHighCmp1(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel)
+void ADC_SetHighCmp1(HHD32F_ADC_TypeDef *ADC,uint32_t val, uint8_t selchannel)
 {
-    (*ADC).HILMT.bit.HILMT1 = val;
-    if (selchannel == CHN0)
-        selchannel = 0;
-    (*ADC).HILMT.bit.CHNSEL1 = selchannel;
-    return;
+	(*ADC).HILMT.bit.HILMT1 = val;
+	if (selchannel==CHN0)
+		selchannel=0;
+	(*ADC).HILMT.bit.CHNSEL1 = selchannel;
+	return;
 }
-
+	
 /*****************************************************************************
 Function Name	ADC_SetLowCmp0
 Function Definition	void ADC_SetLowCmp0(uint32_t val, uint8_t selchannel)
@@ -259,15 +247,15 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetLowCmp0(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel)
+void ADC_SetLowCmp0(HHD32F_ADC_TypeDef *ADC,uint32_t val, uint8_t selchannel)
 {
-    (*ADC).LOLMT.bit.LOLMT0 = val;
-    if (selchannel == CHN0)
-        selchannel = 0;
-    (*ADC).LOLMT.bit.CHNSEL0 = selchannel;
-    return;
+	(*ADC).LOLMT.bit.LOLMT0 = val;
+	if (selchannel==CHN0)
+		selchannel=0;
+	(*ADC).LOLMT.bit.CHNSEL0 = selchannel;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_SetLowCmp1
@@ -279,15 +267,15 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_SetLowCmp1(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel)
+void ADC_SetLowCmp1(HHD32F_ADC_TypeDef *ADC,uint32_t val, uint8_t selchannel)
 {
-    (*ADC).LOLMT.bit.LOLMT1 = val;
-    if (selchannel == CHN0)
-        selchannel = 0;
-    (*ADC).LOLMT.bit.CHNSEL1 = selchannel;
-    return;
+	(*ADC).LOLMT.bit.LOLMT1 = val;
+	if (selchannel==CHN0)
+		selchannel=0;
+	(*ADC).LOLMT.bit.CHNSEL1 = selchannel;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_EnableConversionInt
@@ -300,34 +288,33 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-void ADC_EnableConversionInt(HHD32F_ADC_TypeDef *ADC, uint32_t inttype)
+void ADC_EnableConversionInt(HHD32F_ADC_TypeDef *ADC,uint32_t inttype)
 {
-    (*ADC).INTEN.all =  inttype;
-    return;
+	(*ADC).INTEN.all =  inttype;
+	return;
 }
 /*****************************************************************************
 Function Name	ADC_GetConversionData
 Function Definition	uint32_t ADC_GetConversionData(uint8_t dr)
-Function Description	Read conversion data
+Function Description	Read conversion data 
 Input Parameters	dr: data register ADC_DR0~ ADC_DR7
 Return Value	Conversion value. If no new value, return 0xFFFF FFFF. GDR value bit 14:12 value represent ADC channel 0~7
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
-uint32_t ADC_GetConversionData(HHD32F_ADC_TypeDef *ADC, uint8_t dr)
+uint32_t ADC_GetConversionData(HHD32F_ADC_TypeDef *ADC,uint8_t dr)
 {
-    uint32_t DRvalue;
-    do
-    {
-        DRvalue = (*ADC).DR[dr].all;
-    }
-    while(( DRvalue & 0x80000000) == 0);
-
-    return DRvalue & 0xFFF;
+	uint32_t DRvalue;
+	do
+	{
+		DRvalue = (*ADC).DR[dr].all;
+	}while(( DRvalue & 0x80000000) == 0);
+		
+	return DRvalue&0xFFF;
 }
 
 

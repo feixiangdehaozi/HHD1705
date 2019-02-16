@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   hhd_crc.h:  Header file for  HHD32F1xx Family Microprocessors
+ *   gt_crc.h:  Header file for Gorgetek G32F1xx Family Microprocessors
  *
  *   Copyright(C) 2011, Gorge tech. Ltd.
  *   All rights reserved.
@@ -37,49 +37,44 @@ CRC-32 set-up
 		CRC_MODE = 0x0000 0036
 		CRC_SEED = 0xFFFF FFFF
 *****************************************************************************/
-#ifndef __CRC_H
+#ifndef __CRC_H 
 #define __CRC_H
 #include "hhd32f1xx.h"
 
 //--CRC Registers BITS Field---------------------------------------------------------------------------------------
-struct CRC_MODE_BITS  									// bit description
-{
-    uint32_t CRC_POLY: 2;                   // 1:0 CRC polynomial type
-    uint32_t BIT_RVS_WR: 1;                 // 2 data bit order
-    uint32_t CMPL_WR: 1;                    // 3 data complement
-    uint32_t BIT_RVS_WUM: 1;                // 4 CRC sum bit order
-    uint32_t CMPL_SUM: 1;                   // 5 CRC sum complement
-    uint32_t SEED_OP: 1;                    // 6 CRC seed option set
-    uint32_t SEED_SET: 1;                   // 7 write 1 to load seed to CRC generator
-    uint32_t RSVD0: 24;                     // 31:8 reserved
+struct CRC_MODE_BITS {									// bit description
+				uint32_t CRC_POLY:2;                    // 1:0 CRC polynomial type
+				uint32_t BIT_RVS_WR:1;                  // 2 data bit order
+				uint32_t CMPL_WR:1;                     // 3 data complement
+				uint32_t BIT_RVS_WUM:1;                 // 4 CRC sum bit order
+				uint32_t CMPL_SUM:1;                    // 5 CRC sum complement
+				uint32_t SEED_OP:1;                     // 6 CRC seed option set
+				uint32_t SEED_SET:1;                    // 7 write 1 to load seed to CRC generator
+				uint32_t RSVD0:24;                      // 31:8 reserved
 };
-union CRC_MODE_REG
-{
-    uint32_t				all;
-    struct CRC_MODE_BITS	bit;
+union CRC_MODE_REG {
+				uint32_t				all;
+				struct CRC_MODE_BITS	bit;
 };
 
-union CRC_SEED_REG
-{
-    uint32_t				all;
+union CRC_SEED_REG {
+				uint32_t				all;
 };
 
-union CRC_SUM_REG
-{
-    uint32_t				all;
+union CRC_SUM_REG {
+				uint32_t				all;
 };
 
-union CRC_DATA_REG
-{
-    __IO uint32_t				all;
-    __I uint32_t				SUM;
-    __O uint32_t				WORD;
-    __O uint16_t				HALFWORD;
-    __O uint8_t					BYTE;
+union CRC_DATA_REG {
+				__IO uint32_t				all;
+				__I uint32_t				SUM;
+				__O uint32_t				WORD;
+				__O uint16_t				HALFWORD;
+				__O uint8_t					BYTE;
 };
 
 /*------------- CRC Engine (CRC) ----------------------------*/
-/** @addtogroup HHD_CRC CRC Engine
+/** @addtogroup GT_CRC CRC Engine 
   @{
 */
 typedef struct
@@ -96,9 +91,9 @@ typedef struct
 
 #define ENABLECRCCLK (SYSCON->SYSAHBCLKCTRL.bit.CRCCLK = 1)
 
-uint16_t CRC_CCITT(uint8_t *str, uint16_t strlen, uint32_t crcseed);
-uint16_t CRC_16(uint8_t *str, uint16_t strlen, uint32_t crcseed);
-uint32_t CRC_32(uint8_t *str, uint16_t strlen, uint32_t crcseed);
+uint16_t CRC_CCITT(uint8_t * str, uint16_t strlen,uint32_t crcseed);
+uint16_t CRC_16(uint8_t * str, uint16_t strlen,uint32_t crcseed);
+uint32_t CRC_32(uint8_t * str, uint16_t strlen,uint32_t crcseed);
 
 #endif /* end __CRC_H */
 /*****************************************************************************

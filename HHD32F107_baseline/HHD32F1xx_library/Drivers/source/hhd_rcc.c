@@ -19,15 +19,15 @@
 /**
   * @brief  Enables or disables the AHB peripheral clock.
   * @param  RCC_AHBPeriph: specifies the AHB peripheral to gates its clock.
-  *
+  *   
   *   For @b STM32_Connectivity_line_devices, this parameter can be any combination
-  *   of the following values:
+  *   of the following values:        
   *     @arg RCC_AHBPeriph_DMA1
   *     @arg RCC_AHBPeriph_DMA2
   *     @arg RCC_AHBPeriph_SRAM
   *     @arg RCC_AHBPeriph_FLITF
   *     @arg RCC_AHBPeriph_CRC
-  *
+  *   
   * @note SRAM and FLITF clock can be disabled only during sleep mode.
   * @param  NewState: new state of the specified peripheral clock.
   *   This parameter can be: ENABLE or DISABLE.
@@ -35,9 +35,9 @@
   */
 void RCC_AHBPeriphClockCmd(uint32_t RCC_AHBPeriph, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_RCC_AHB_PERIPH(RCC_AHBPeriph));
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
+  /* Check the parameters */
+  assert_param(IS_RCC_AHB_PERIPH(RCC_AHBPeriph));
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
 
     if (NewState != DISABLE)
     {
@@ -83,9 +83,9 @@ void RCC_APB2PeriphClockCmd(uint32_t RCC_APB2Periph, FunctionalState NewState)
   *     @arg RCC_APB1Periph_TIM2, RCC_APB1Periph_TIM3, RCC_APB1Periph_TIM4,
   *          RCC_APB1Periph_TIM5, RCC_APB1Periph_TIM6, RCC_APB1Periph_TIM7,
   *          RCC_APB1Periph_WWDG, RCC_APB1Periph_SPI2, RCC_APB1Periph_SPI3,
-  *          RCC_APB1Periph_USART2, RCC_APB1Periph_USART3, RCC_APB1Periph_USART4,
+  *          RCC_APB1Periph_USART2, RCC_APB1Periph_USART3, RCC_APB1Periph_USART4, 
   *          RCC_APB1Periph_USART5, RCC_APB1Periph_I2C1, RCC_APB1Periph_I2C2,
-  *          RCC_APB1Periph_USB, RCC_APB1Periph_CAN1,
+  *          RCC_APB1Periph_USB, RCC_APB1Periph_CAN1, 
   *          RCC_APB1Periph_PWR, RCC_APB1Periph_DAC
   * @param  NewState: new state of the specified peripheral clock.
   *   This parameter can be: ENABLE or DISABLE.

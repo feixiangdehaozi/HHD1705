@@ -7,10 +7,10 @@
 
 enum tcp_work_states
 {
-    ES_GETINFO = 3,
-    ES_FILEINFO,
-    ES_SENDDATA,
-    ES_CANCEL,
+  ES_GETINFO = 3,
+  ES_FILEINFO,
+  ES_SENDDATA,
+  ES_CANCEL,
 
 };
 

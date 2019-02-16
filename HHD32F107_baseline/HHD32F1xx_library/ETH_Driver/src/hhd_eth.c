@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    HHD32_eth.c
+  * @file    gt32_eth.c
   * @author  MCD Application Team
   * @version V1.1.0
   * @date    11/20/2009
@@ -16,7 +16,7 @@
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
   * <h2><center>&copy; COPYRIGHT 2009 STMicroelectronics</center></h2>
-  */
+  */ 
 
 /* Includes ------------------------------------------------------------------*/
 #include "hhd32f1xx.h"
@@ -26,10 +26,22 @@
 
 extern void Delay_1ms(uint32_t nCount);
 
+/** @addtogroup STM32_ETH_Driver
+  * @brief ETH driver modules
+  * @{
+  */
+
+/** @defgroup ETH_Private_TypesDefinitions
+  * @{
+  */ 
+/**
+  * @}
+  */ 
+
 
 /** @defgroup ETH_Private_Defines
   * @{
-  */
+  */ 
 /* Global pointers on Tx and Rx descriptor used to track transmit and receive descriptors */
 ETH_DMADESCTypeDef  *DMATxDescToSet;
 ETH_DMADESCTypeDef  *DMARxDescToGet;
@@ -46,10 +58,10 @@ ETH_DMADESCTypeDef  *DMAPTPRxDescToGet;
 #define ETH_MAC_ADDR_LBASE    (ETH_MAC_BASE + 0x44)  /* ETHERNET MAC address low offset */
 
 /* ETHERNET MACMIIAR register Mask */
-#define MACMIIAR_CR_MASK    ((uint32_t)0xFFFFFFE3)
+#define MACMIIAR_CR_MASK    ((uint32_t)0xFFFFFFE3) 
 
 /* ETHERNET MACCR register Mask */
-#define MACCR_CLEAR_MASK    ((uint32_t)0xFF20810F)
+#define MACCR_CLEAR_MASK    ((uint32_t)0xFF20810F)  
 
 /* ETHERNET MACFCR register Mask */
 #define MACFCR_CLEAR_MASK   ((uint32_t)0x0000FF41)
@@ -80,17 +92,17 @@ ETH_DMADESCTypeDef  *DMAPTPRxDescToGet;
 #define  ETH_SUCCESS            ((uint32_t)1)
 
 #define HW32_REG(ADDRESS)  (*((volatile unsigned long  *)(ADDRESS)))
-
-void gmac_wr(unsigned int addr, unsigned int wr_d)
+	
+void gmac_wr(unsigned int addr,unsigned int wr_d)
 {
-    HW32_REG(0x40028000 + addr) = wr_d;
+  HW32_REG(0x40028000+addr) = wr_d;
 }
+	
 
-
-
+	
 int	error_flag;
 int	ii;
-int gmac_rd(unsigned int addr, unsigned int exp_d, unsigned int mask)
+int gmac_rd(unsigned int addr,unsigned int exp_d,unsigned int mask)
 {
     int read_dat;
     int expmask_dat;
@@ -105,110 +117,139 @@ int gmac_rd(unsigned int addr, unsigned int exp_d, unsigned int mask)
     }
     return read_dat;
 }
+/**
+  * @}
+  */
 
+/** @defgroup ETH_Private_Macros
+  * @{
+  */ 
+/**
+  * @}
+  */
+
+/** @defgroup ETH_Private_Variables
+  * @{
+  */ 
+/**
+  * @}
+  */
 
 /** @defgroup ETH_Private_FunctionPrototypes
   * @{
+  */ 
+  
+
+  
+/**
+  * @}
   */
 
 void delaynstep(int i)
 {
-    while(i--);
+	while(i--);
 }
+
 
 
 void PHY_MII_TO_SGMII(uint16_t PHYAddress)
 {
-    uint32_t RegValue = 0;
+	uint32_t RegValue = 0;
+	
+	//Mode config
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
+	RegValue &= 0xFFF0;
+	RegValue |= 0x800E;     //(E)1110:gmii to sgmii;
+	ETH_WritePHYRegister(PHYAddress, 27, RegValue);
+	
+	//reset
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
+	RegValue &= 0xFFFF;
+	RegValue |= PHY_Reset;
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);
+	Delay_1ms(0x001FFFFF);
 
-    //Mode config
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
-    RegValue &= 0xFFF0;
-    RegValue |= 0x800E;     //(E)1110:gmii to sgmii;
-    ETH_WritePHYRegister(PHYAddress, 27, RegValue);
-
-    //reset
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
-    RegValue &= 0xFFFF;
-    RegValue |= PHY_Reset;
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);
-    Delay_1ms(0x001FFFFF);
-
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
-    RegValue &= 0xFFFF;
-    RegValue |= (1 << 12);
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
-    RegValue &= 0xFFFF;
-    RegValue |= (1 << 8);
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);
-
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 20);
-    RegValue &= 0xFF8F;
-    //RegValue |= 0x0040;
-    RegValue |= 0x0070;           //1000M,TX_CLK link_speed 25MH
-    ETH_WritePHYRegister(PHYAddress, 20, RegValue);
-
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 16);
-    RegValue &= 0xFF9F;
-    RegValue |= 0x0060;
-    ETH_WritePHYRegister(PHYAddress, 16, RegValue);
-
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
-    RegValue &= 0xFFFF;
-    RegValue |= 0x8000;
-    ETH_WritePHYRegister(PHYAddress, 27, RegValue);
-
-    //reset
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
-    RegValue &= 0xFFFF;
-    RegValue = PHY_Reset | PHY_AutoNegotiation | RegValue;
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);
-    Delay_1ms(0x001FFFFF);
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
+	RegValue &= 0xFFFF;
+	RegValue |= (1<<12);
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
+	RegValue &= 0xFFFF;
+	RegValue |= (1<<8);
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);
+	
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 20);
+	RegValue &= 0xFF8F;
+	//RegValue |= 0x0040;
+	RegValue |= 0x0070;           //1000M,TX_CLK link_speed 25MH
+	ETH_WritePHYRegister(PHYAddress, 20, RegValue);
+	
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 16);
+	RegValue &= 0xFF9F;
+	RegValue |= 0x0060;
+	ETH_WritePHYRegister(PHYAddress, 16, RegValue);
+	
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
+	RegValue &= 0xFFFF;
+	RegValue |= 0x8000;
+	ETH_WritePHYRegister(PHYAddress, 27, RegValue); 
+	
+	//reset
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
+	RegValue &= 0xFFFF;
+	RegValue = PHY_Reset | PHY_AutoNegotiation | RegValue;
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);
+	Delay_1ms(0x001FFFFF);
 }
 /**********************************************************************
-*
+*	
 * PHY Config MII to Copper
 *
 **********************************************************************/
 void PHY_MII_COPPER(uint16_t PHYAddress)
 {
-    uint32_t RegValue = 0;
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 1);
+	uint32_t RegValue = 0;	
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 1);
+	
+	ETH_WritePHYRegister(PHYAddress, 0,RegValue|0x8000);
 
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue | 0x8000);
+	Delay_1ms(1000);	
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
+	RegValue = RegValue&0xFFF0;
+	RegValue = RegValue|0x000F;   //(F)1111:MII to copper;
+	ETH_WritePHYRegister(PHYAddress, 27, RegValue);
 
-    Delay_1ms(1000);
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 27);
-    RegValue = RegValue & 0xFFF0;
-    RegValue = RegValue | 0x000F; //(F)1111:MII to copper;
-    ETH_WritePHYRegister(PHYAddress, 27, RegValue);
+	Delay_1ms(1000);
 
-    Delay_1ms(1000);
-
-    RegValue = ETH_ReadPHYRegister(PHYAddress, 0);
-    RegValue = RegValue & 0xEFFF ;  // reg0_bit.12 =0  关闭自适应模式
-    RegValue = RegValue & 0xFFBF ;  // reg0_bit.6  =0
-#ifdef ETH_100M
-    RegValue = RegValue | 0x2000 ;	// reg0_bit.13 =1 时是100 M
-#else
-    RegValue = RegValue & 0xDFFF ;	 // reg0_bit.13 =0 时是10 M
+	RegValue = ETH_ReadPHYRegister(PHYAddress, 0);  
+	RegValue = RegValue&0xEFFF ;    // reg0_bit.12 =0  关闭自适应模式
+	RegValue = RegValue&0xFFBF ;    // reg0_bit.6  =0
+#ifdef ETH_100M 
+	RegValue = RegValue|0x2000 ;	// reg0_bit.13 =1 时是100 M
+#else 	
+	RegValue = RegValue&0xDFFF ;	  // reg0_bit.13 =0 时是10 M
 #endif
 
-    RegValue = RegValue | 0x8000 ;	//reg0_bit15 =0 时复位，注意复位前要把REG0里面的其它位一块写进去。
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);//Disable Auto_Negotiation_Enable register0.12
-    ETH_WritePHYRegister(PHYAddress, 0, RegValue);//Disable Auto_Negotiation_Enable register0.12
-    Delay_1ms(1000);
+	RegValue = RegValue|0x8000 ;	//reg0_bit15 =0 时复位，注意复位前要把REG0里面的其它位一块写进去。		
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);//Disable Auto_Negotiation_Enable register0.12		
+	ETH_WritePHYRegister(PHYAddress, 0, RegValue);//Disable Auto_Negotiation_Enable register0.12		
+	Delay_1ms(1000);
 
 }
+
+/** @defgroup ETH_Private_Functions
+  * @{
+  */
+
 /**
   * @brief  Deinitializes the ETHERNET peripheral registers to their default reset values.
-  * @param  None
+  * @param  None 
   * @retval None
   */
 void ETH_DeInit(void)
 {
-
+//  RCC_AHBPeriphResetCmd(RCC_AHBPeriph_ETH_MAC, ENABLE);
+//  RCC_AHBPeriphResetCmd(RCC_AHBPeriph_ETH_MAC, DISABLE);
 }
 
 /**
@@ -216,111 +257,107 @@ void ETH_DeInit(void)
   *   parameters in the ETH_InitStruct .
   * @param ETH_InitStruct: pointer to a ETH_InitTypeDef structure that contains
   *   the configuration information for the specified ETHERNET peripheral.
-  * @param PHYAddress: external PHY address
+  * @param PHYAddress: external PHY address                    
   * @retval ETH_ERROR: Ethernet initialization failed
-  *         ETH_SUCCESS: Ethernet successfully initialized
+  *         ETH_SUCCESS: Ethernet successfully initialized                 
   */
-uint32_t ETH_Init(ETH_InitTypeDef *ETH_InitStruct, uint16_t PHYAddress)
+uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
 {
-    uint32_t  tmpreg = 0;
-    __IO uint32_t i = 0;
+  uint32_t  tmpreg = 0;
+  __IO uint32_t i = 0;
+	uint32_t hclk = 75000000;
+  __IO uint32_t timeout = 0;
 
-    uint32_t hclk = 75000000;
-    __IO uint32_t timeout = 0;
 
-    /* MAC --------------------------*/
-    assert_param(IS_ETH_AUTONEGOTIATION(ETH_InitStruct->ETH_AutoNegotiation));
-    assert_param(IS_ETH_WATCHDOG(ETH_InitStruct->ETH_Watchdog));
-    assert_param(IS_ETH_JABBER(ETH_InitStruct->ETH_Jabber));
-    assert_param(IS_ETH_INTER_FRAME_GAP(ETH_InitStruct->ETH_InterFrameGap));
-    assert_param(IS_ETH_CARRIER_SENSE(ETH_InitStruct->ETH_CarrierSense));
-    assert_param(IS_ETH_SPEED(ETH_InitStruct->ETH_Speed));
-    assert_param(IS_ETH_RECEIVE_OWN(ETH_InitStruct->ETH_ReceiveOwn));
-    assert_param(IS_ETH_LOOPBACK_MODE(ETH_InitStruct->ETH_LoopbackMode));
-    assert_param(IS_ETH_DUPLEX_MODE(ETH_InitStruct->ETH_Mode));
-    assert_param(IS_ETH_CHECKSUM_OFFLOAD(ETH_InitStruct->ETH_ChecksumOffload));
-    assert_param(IS_ETH_RETRY_TRANSMISSION(ETH_InitStruct->ETH_RetryTransmission));
-    assert_param(IS_ETH_AUTOMATIC_PADCRC_STRIP(ETH_InitStruct->ETH_AutomaticPadCRCStrip));
-    assert_param(IS_ETH_BACKOFF_LIMIT(ETH_InitStruct->ETH_BackOffLimit));
-    assert_param(IS_ETH_DEFERRAL_CHECK(ETH_InitStruct->ETH_DeferralCheck));
-    assert_param(IS_ETH_RECEIVE_ALL(ETH_InitStruct->ETH_ReceiveAll));
-    assert_param(IS_ETH_SOURCE_ADDR_FILTER(ETH_InitStruct->ETH_SourceAddrFilter));
-    assert_param(IS_ETH_CONTROL_FRAMES(ETH_InitStruct->ETH_PassControlFrames));
-    assert_param(IS_ETH_BROADCAST_FRAMES_RECEPTION(ETH_InitStruct->ETH_BroadcastFramesReception));
-    assert_param(IS_ETH_DESTINATION_ADDR_FILTER(ETH_InitStruct->ETH_DestinationAddrFilter));
-    assert_param(IS_ETH_PROMISCUOUS_MODE(ETH_InitStruct->ETH_PromiscuousMode));
-    assert_param(IS_ETH_MULTICAST_FRAMES_FILTER(ETH_InitStruct->ETH_MulticastFramesFilter));
-    assert_param(IS_ETH_UNICAST_FRAMES_FILTER(ETH_InitStruct->ETH_UnicastFramesFilter));
-    assert_param(IS_ETH_PAUSE_TIME(ETH_InitStruct->ETH_PauseTime));
-    assert_param(IS_ETH_ZEROQUANTA_PAUSE(ETH_InitStruct->ETH_ZeroQuantaPause));
-    assert_param(IS_ETH_PAUSE_LOW_THRESHOLD(ETH_InitStruct->ETH_PauseLowThreshold));
-    assert_param(IS_ETH_UNICAST_PAUSE_FRAME_DETECT(ETH_InitStruct->ETH_UnicastPauseFrameDetect));
-    assert_param(IS_ETH_RECEIVE_FLOWCONTROL(ETH_InitStruct->ETH_ReceiveFlowControl));
-    assert_param(IS_ETH_TRANSMIT_FLOWCONTROL(ETH_InitStruct->ETH_TransmitFlowControl));
-    assert_param(IS_ETH_VLAN_TAG_COMPARISON(ETH_InitStruct->ETH_VLANTagComparison));
-    assert_param(IS_ETH_VLAN_TAG_IDENTIFIER(ETH_InitStruct->ETH_VLANTagIdentifier));
-    /* DMA --------------------------*/
-    assert_param(IS_ETH_DROP_TCPIP_CHECKSUM_FRAME(ETH_InitStruct->ETH_DropTCPIPChecksumErrorFrame));
-    assert_param(IS_ETH_RECEIVE_STORE_FORWARD(ETH_InitStruct->ETH_ReceiveStoreForward));
-    assert_param(IS_ETH_FLUSH_RECEIVE_FRAME(ETH_InitStruct->ETH_FlushReceivedFrame));
-    assert_param(IS_ETH_TRANSMIT_STORE_FORWARD(ETH_InitStruct->ETH_TransmitStoreForward));
-    assert_param(IS_ETH_TRANSMIT_THRESHOLD_CONTROL(ETH_InitStruct->ETH_TransmitThresholdControl));
-    assert_param(IS_ETH_FORWARD_ERROR_FRAMES(ETH_InitStruct->ETH_ForwardErrorFrames));
-    assert_param(IS_ETH_FORWARD_UNDERSIZED_GOOD_FRAMES(
-                     ETH_InitStruct->ETH_ForwardUndersizedGoodFrames));
-    assert_param(IS_ETH_RECEIVE_THRESHOLD_CONTROL(ETH_InitStruct->ETH_ReceiveThresholdControl));
-    assert_param(IS_ETH_SECOND_FRAME_OPERATE(ETH_InitStruct->ETH_SecondFrameOperate));
-    assert_param(IS_ETH_ADDRESS_ALIGNED_BEATS(ETH_InitStruct->ETH_AddressAlignedBeats));
-    assert_param(IS_ETH_FIXED_BURST(ETH_InitStruct->ETH_FixedBurst));
-    assert_param(IS_ETH_RXDMA_BURST_LENGTH(ETH_InitStruct->ETH_RxDMABurstLength));
-    assert_param(IS_ETH_TXDMA_BURST_LENGTH(ETH_InitStruct->ETH_TxDMABurstLength));
-    assert_param(IS_ETH_DMA_DESC_SKIP_LENGTH(ETH_InitStruct->ETH_DescriptorSkipLength));
-    assert_param(IS_ETH_DMA_ARBITRATION_ROUNDROBIN_RXTX(ETH_InitStruct->ETH_DMAArbitration));
-    /*-------------------------------- MAC Config ------------------------------*/
-    /*---------------------- ETHERNET MACMIIAR Configuration -------------------*/
-    /* Get the ETHERNET MACMIIAR value */
+  /* MAC --------------------------*/ 
+  assert_param(IS_ETH_AUTONEGOTIATION(ETH_InitStruct->ETH_AutoNegotiation));
+  assert_param(IS_ETH_WATCHDOG(ETH_InitStruct->ETH_Watchdog));
+  assert_param(IS_ETH_JABBER(ETH_InitStruct->ETH_Jabber));
+  assert_param(IS_ETH_INTER_FRAME_GAP(ETH_InitStruct->ETH_InterFrameGap));
+  assert_param(IS_ETH_CARRIER_SENSE(ETH_InitStruct->ETH_CarrierSense));
+  assert_param(IS_ETH_SPEED(ETH_InitStruct->ETH_Speed));
+  assert_param(IS_ETH_RECEIVE_OWN(ETH_InitStruct->ETH_ReceiveOwn));
+  assert_param(IS_ETH_LOOPBACK_MODE(ETH_InitStruct->ETH_LoopbackMode));
+  assert_param(IS_ETH_DUPLEX_MODE(ETH_InitStruct->ETH_Mode));
+  assert_param(IS_ETH_CHECKSUM_OFFLOAD(ETH_InitStruct->ETH_ChecksumOffload));
+  assert_param(IS_ETH_RETRY_TRANSMISSION(ETH_InitStruct->ETH_RetryTransmission));
+  assert_param(IS_ETH_AUTOMATIC_PADCRC_STRIP(ETH_InitStruct->ETH_AutomaticPadCRCStrip));
+  assert_param(IS_ETH_BACKOFF_LIMIT(ETH_InitStruct->ETH_BackOffLimit));
+  assert_param(IS_ETH_DEFERRAL_CHECK(ETH_InitStruct->ETH_DeferralCheck));
+  assert_param(IS_ETH_RECEIVE_ALL(ETH_InitStruct->ETH_ReceiveAll));
+  assert_param(IS_ETH_SOURCE_ADDR_FILTER(ETH_InitStruct->ETH_SourceAddrFilter));
+  assert_param(IS_ETH_CONTROL_FRAMES(ETH_InitStruct->ETH_PassControlFrames));
+  assert_param(IS_ETH_BROADCAST_FRAMES_RECEPTION(ETH_InitStruct->ETH_BroadcastFramesReception));
+  assert_param(IS_ETH_DESTINATION_ADDR_FILTER(ETH_InitStruct->ETH_DestinationAddrFilter));
+  assert_param(IS_ETH_PROMISCUOUS_MODE(ETH_InitStruct->ETH_PromiscuousMode));
+  assert_param(IS_ETH_MULTICAST_FRAMES_FILTER(ETH_InitStruct->ETH_MulticastFramesFilter));  
+  assert_param(IS_ETH_UNICAST_FRAMES_FILTER(ETH_InitStruct->ETH_UnicastFramesFilter));
+  assert_param(IS_ETH_PAUSE_TIME(ETH_InitStruct->ETH_PauseTime));
+  assert_param(IS_ETH_ZEROQUANTA_PAUSE(ETH_InitStruct->ETH_ZeroQuantaPause));
+  assert_param(IS_ETH_PAUSE_LOW_THRESHOLD(ETH_InitStruct->ETH_PauseLowThreshold));
+  assert_param(IS_ETH_UNICAST_PAUSE_FRAME_DETECT(ETH_InitStruct->ETH_UnicastPauseFrameDetect));
+  assert_param(IS_ETH_RECEIVE_FLOWCONTROL(ETH_InitStruct->ETH_ReceiveFlowControl));
+  assert_param(IS_ETH_TRANSMIT_FLOWCONTROL(ETH_InitStruct->ETH_TransmitFlowControl));
+  assert_param(IS_ETH_VLAN_TAG_COMPARISON(ETH_InitStruct->ETH_VLANTagComparison));
+  assert_param(IS_ETH_VLAN_TAG_IDENTIFIER(ETH_InitStruct->ETH_VLANTagIdentifier));
+  /* DMA --------------------------*/
+  assert_param(IS_ETH_DROP_TCPIP_CHECKSUM_FRAME(ETH_InitStruct->ETH_DropTCPIPChecksumErrorFrame));
+  assert_param(IS_ETH_RECEIVE_STORE_FORWARD(ETH_InitStruct->ETH_ReceiveStoreForward));
+  assert_param(IS_ETH_FLUSH_RECEIVE_FRAME(ETH_InitStruct->ETH_FlushReceivedFrame));
+  assert_param(IS_ETH_TRANSMIT_STORE_FORWARD(ETH_InitStruct->ETH_TransmitStoreForward));
+  assert_param(IS_ETH_TRANSMIT_THRESHOLD_CONTROL(ETH_InitStruct->ETH_TransmitThresholdControl));
+  assert_param(IS_ETH_FORWARD_ERROR_FRAMES(ETH_InitStruct->ETH_ForwardErrorFrames));
+  assert_param(IS_ETH_FORWARD_UNDERSIZED_GOOD_FRAMES(ETH_InitStruct->ETH_ForwardUndersizedGoodFrames));
+  assert_param(IS_ETH_RECEIVE_THRESHOLD_CONTROL(ETH_InitStruct->ETH_ReceiveThresholdControl));
+  assert_param(IS_ETH_SECOND_FRAME_OPERATE(ETH_InitStruct->ETH_SecondFrameOperate));
+  assert_param(IS_ETH_ADDRESS_ALIGNED_BEATS(ETH_InitStruct->ETH_AddressAlignedBeats));
+  assert_param(IS_ETH_FIXED_BURST(ETH_InitStruct->ETH_FixedBurst));
+  assert_param(IS_ETH_RXDMA_BURST_LENGTH(ETH_InitStruct->ETH_RxDMABurstLength));
+  assert_param(IS_ETH_TXDMA_BURST_LENGTH(ETH_InitStruct->ETH_TxDMABurstLength)); 
+  assert_param(IS_ETH_DMA_DESC_SKIP_LENGTH(ETH_InitStruct->ETH_DescriptorSkipLength));  
+  assert_param(IS_ETH_DMA_ARBITRATION_ROUNDROBIN_RXTX(ETH_InitStruct->ETH_DMAArbitration));       
+  /*-------------------------------- MAC Config ------------------------------*/   
+  /*---------------------- ETHERNET MACMIIAR Configuration -------------------*/
+  /* Get the ETHERNET MACMIIAR value */
     tmpreg = HHD_ETH->MACMIIAR;
-    /* Clear CSR Clock Range CR[2:0] bits */
-    tmpreg &= MACMIIAR_CR_MASK;
-    /* Get hclk frequency value */
-    //RCC_GetClocksFreq(&rcc_clocks);
-    hclk = MainClock;
-    /* Set CR bits depending on hclk value */
-    //  if((hclk >= 20000000)&&(hclk < 35000000))
-    //  {
-    //    /* CSR Clock Range between 20-35 MHz */
-    //    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div16;
-    //  }
-    //  else if((hclk >= 35000000)&&(hclk < 60000000))
-    //  {
-    //    /* CSR Clock Range between 35-60 MHz */
-    //    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div26;
-    //  }
-    //  else /* ((hclk >= 60000000)&&(hclk <= 72000000)) */
-    //  {
-    //    /* CSR Clock Range between 60-72 MHz */
-    //    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div42;
-    //  }
-    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div42;
-    /* Write to ETHERNET MAC MIIAR: Configure the ETHERNET CSR Clock Range */
+  /* Clear CSR Clock Range CR[2:0] bits */
+  tmpreg &= MACMIIAR_CR_MASK;
+  /* Get hclk frequency value */
+  //RCC_GetClocksFreq(&rcc_clocks);
+  hclk = MainClock;
+  /* Set CR bits depending on hclk value */
+//  if((hclk >= 20000000)&&(hclk < 35000000))
+//  {
+//    /* CSR Clock Range between 20-35 MHz */
+//    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div16;
+//  }
+//  else if((hclk >= 35000000)&&(hclk < 60000000))
+//  {
+//    /* CSR Clock Range between 35-60 MHz */ 
+//    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div26;    
+//  }  
+//  else /* ((hclk >= 60000000)&&(hclk <= 72000000)) */
+//  {
+//    /* CSR Clock Range between 60-72 MHz */   
+//    tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div42;    
+//  }
+	 tmpreg |= (uint32_t)ETH_MACMIIAR_CR_Div42;  
+  /* Write to ETHERNET MAC MIIAR: Configure the ETHERNET CSR Clock Range */
     HHD_ETH->MACMIIAR = (uint32_t)tmpreg;
-    /*-------------------- PHY initialization and configuration ----------------*/
+  /*-------------------- PHY initialization and configuration ----------------*/
+	Delay_1ms(1000);	
+	Delay_1ms(1000);	
+	Delay_1ms(1000);	
+	Delay_1ms(1000);
 
-    //	  ETH_WritePHYRegister(PHYAddress, 0, 0x8000);//Disable Auto_Negotiation_Enable register0.12
-
-    Delay_1ms(1000);
-
-    Delay_1ms(1000);
-    Delay_1ms(1000);
-    Delay_1ms(1000);
-#ifdef MII_MODE
-#ifndef MII_TO_SGMII
-    PHY_MII_COPPER(PHYAddress);
+#ifdef MII_MODE	
+#ifndef MII_TO_SGMII	
+	PHY_MII_COPPER(PHYAddress);
 #endif
-#endif
-
+#endif	
+	
 #ifdef 	MII_TO_SGMII
-    PHY_MII_TO_SGMII(PHYAddress);
+	PHY_MII_TO_SGMII(PHYAddress);
 #endif
 
 
@@ -518,23 +555,23 @@ void ETH_StructInit(ETH_InitTypeDef *ETH_InitStruct)
 }
 
 /**
-  * @brief  Enables ENET MAC and DMA reception/transmission
+  * @brief  Enables ENET MAC and DMA reception/transmission 
   * @param  None
   * @retval None
   */
 void ETH_Start(void)
 {
-    /* Enable transmit state machine of the MAC for transmission on the MII */
-    ETH_MACTransmissionCmd(ENABLE);
-    /* Flush Transmit FIFO */
-    ETH_FlushTransmitFIFO();
-    /* Enable receive state machine of the MAC for reception from the MII */
-    ETH_MACReceptionCmd(ENABLE);
-    /* Start DMA reception */
-    ETH_DMAReceptionCmd(ENABLE);
+  /* Enable transmit state machine of the MAC for transmission on the MII */  
+  ETH_MACTransmissionCmd(ENABLE);
+  /* Flush Transmit FIFO */
+  ETH_FlushTransmitFIFO();
+  /* Enable receive state machine of the MAC for reception from the MII */  
+  ETH_MACReceptionCmd(ENABLE);
+   /* Start DMA reception */
+  ETH_DMAReceptionCmd(ENABLE);   
 
-    /* Start DMA transmission */
-    ETH_DMATransmissionCmd(ENABLE);
+  /* Start DMA transmission */
+  ETH_DMATransmissionCmd(ENABLE);
 
 }
 
@@ -676,7 +713,7 @@ uint32_t ETH_HandleRxPkt(uint8_t *ppkt)
 /**
   * @brief  Get the size of received the received packet.
   * @param  None
-  * @retval framelength: received packet size
+  * @retval framelength: received packet size 
   */
 uint32_t ETH_GetRxPktSize(void)
 {
@@ -778,11 +815,11 @@ uint16_t ETH_ReadPHYRegister(uint16_t PHYAddress, uint16_t PHYReg)
 
 /**
   * @brief  Write to a PHY register
-  * @param PHYAddress: PHY device address, is the index of one of supported 32 PHY devices.
+  * @param PHYAddress: PHY device address, is the index of one of supported 32 PHY devices. 
   *   This parameter can be one of the following values: 0,..,31
-  * @param PHYReg: PHY register address, is the index of one of the 32 PHY register.
-  *   This parameter can be one of the following values:
-  *     @arg PHY_BCR    : Tranceiver Control Register
+  * @param PHYReg: PHY register address, is the index of one of the 32 PHY register. 
+  *   This parameter can be one of the following values: 
+  *     @arg PHY_BCR    : Tranceiver Control Register  
   *     @arg More PHY register could be written depending on the used PHY
   * @param  PHYValue: the value to write
   * @retval ETH_ERROR: in case of timeout
@@ -831,43 +868,43 @@ uint32_t ETH_WritePHYRegister(uint16_t PHYAddress, uint16_t PHYReg, uint16_t PHY
   * @brief  Enables or disables the PHY loopBack mode.
   * @Note: Don't be confused with ETH_MACLoopBackCmd function which enables internal
   *  loopback at MII level
-  * @param  PHYAddress: PHY device address, is the index of one of supported 32 PHY devices.
-  *   This parameter can be one of the following values:
+  * @param  PHYAddress: PHY device address, is the index of one of supported 32 PHY devices. 
+  *   This parameter can be one of the following values:                   
   * @param  NewState: new state of the PHY loopBack mode.
-  *   This parameter can be: ENABLE or DISABLE.
+  *   This parameter can be: ENABLE or DISABLE.    
   * @retval ETH_ERROR: in case of bad PHY configuration
   *         ETH_SUCCESS: for correct PHY configuration
   */
 uint32_t ETH_PHYLoopBackCmd(uint16_t PHYAddress, FunctionalState NewState)
 {
-    uint16_t tmpreg = 0;
-    /* Check the parameters */
-    assert_param(IS_ETH_PHY_ADDRESS(PHYAddress));
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    /* Get the PHY configuration to update it */
-    tmpreg = ETH_ReadPHYRegister(PHYAddress, PHY_BCR);
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the PHY loopback mode */
-        tmpreg |= PHY_Loopback;
-    }
-    else
-    {
-        /* Disable the PHY loopback mode: normal mode */
-        tmpreg &= (uint16_t)(~(uint16_t)PHY_Loopback);
-    }
-    /* Update the PHY control register with the new configuration */
-    if(ETH_WritePHYRegister(PHYAddress, PHY_BCR, tmpreg) != (uint32_t)RESET)
-    {
-        return ETH_SUCCESS;
-    }
-    else
-    {
-        /* Return SUCCESS */
-        return ETH_ERROR;
-    }
+  uint16_t tmpreg = 0;
+  /* Check the parameters */
+  assert_param(IS_ETH_PHY_ADDRESS(PHYAddress));
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+    
+  /* Get the PHY configuration to update it */
+  tmpreg = ETH_ReadPHYRegister(PHYAddress, PHY_BCR); 
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the PHY loopback mode */
+    tmpreg |= PHY_Loopback;  
+  }
+  else
+  {
+    /* Disable the PHY loopback mode: normal mode */
+    tmpreg &= (uint16_t)(~(uint16_t)PHY_Loopback);
+  }
+  /* Update the PHY control register with the new configuration */
+  if(ETH_WritePHYRegister(PHYAddress, PHY_BCR, tmpreg) != (uint32_t)RESET)
+  {
+    return ETH_SUCCESS;
+  }
+  else
+  {
+    /* Return SUCCESS */
+    return ETH_ERROR; 
+  }   
 }
 
 /*---------------------------------  MAC  ------------------------------------*/
@@ -1004,11 +1041,11 @@ FlagStatus ETH_GetMACFlagStatus(uint32_t ETH_MAC_FLAG)
   * @brief  Checks whether the specified ETHERNET MAC interrupt has occurred or not.
   * @param  ETH_MAC_IT: specifies the interrupt source to check.
   *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_IT_TST   : Time stamp trigger interrupt
-  *     @arg ETH_MAC_IT_MMCT : MMC transmit interrupt
-  *     @arg ETH_MAC_IT_MMCR : MMC receive interrupt
-  *     @arg ETH_MAC_IT_MMC  : MMC interrupt
-  *     @arg ETH_MAC_IT_PMT  : PMT interrupt
+  *     @arg ETH_MAC_IT_TST   : Time stamp trigger interrupt  
+  *     @arg ETH_MAC_IT_MMCT : MMC transmit interrupt 
+  *     @arg ETH_MAC_IT_MMCR : MMC receive interrupt  
+  *     @arg ETH_MAC_IT_MMC  : MMC interrupt 
+  *     @arg ETH_MAC_IT_PMT  : PMT interrupt 
   * @retval The new state of ETHERNET MAC interrupt (SET or RESET).
   */
 ITStatus ETH_GetMACITStatus(uint32_t ETH_MAC_IT)
@@ -1088,8 +1125,8 @@ void ETH_MACAddressConfig(uint32_t MacAddr, uint8_t *Addr)
   * @brief  Get the selected MAC address.
   * @param  MacAddr: The MAC addres to return.
   *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_Address0 : MAC Address0
-  *     @arg ETH_MAC_Address1 : MAC Address1
+  *     @arg ETH_MAC_Address0 : MAC Address0 
+  *     @arg ETH_MAC_Address1 : MAC Address1 
   *     @arg ETH_MAC_Address2 : MAC Address2
   *     @arg ETH_MAC_Address3 : MAC Address3
   * @param  Addr: Pointer on MAC address buffer data (6 bytes).
@@ -1097,31 +1134,31 @@ void ETH_MACAddressConfig(uint32_t MacAddr, uint8_t *Addr)
   */
 void ETH_GetMACAddress(uint32_t MacAddr, uint8_t *Addr)
 {
-    uint32_t tmpreg;
-    /* Check the parameters */
-    assert_param(IS_ETH_MAC_ADDRESS0123(MacAddr));
-
-    /* Get the selectecd MAC address high register */
-    tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
-
-    /* Calculate the selectecd MAC address buffer */
-    Addr[5] = ((tmpreg >> 8) & (uint8_t)0xFF);
-    Addr[4] = (tmpreg & (uint8_t)0xFF);
-    /* Load the selectecd MAC address low register */
-    tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_LBASE + MacAddr));
-    /* Calculate the selectecd MAC address buffer */
-    Addr[3] = ((tmpreg >> 24) & (uint8_t)0xFF);
-    Addr[2] = ((tmpreg >> 16) & (uint8_t)0xFF);
-    Addr[1] = ((tmpreg >> 8 ) & (uint8_t)0xFF);
-    Addr[0] = (tmpreg & (uint8_t)0xFF);
+  uint32_t tmpreg;
+  /* Check the parameters */
+  assert_param(IS_ETH_MAC_ADDRESS0123(MacAddr));
+  
+  /* Get the selectecd MAC address high register */
+  tmpreg =(*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
+ 
+  /* Calculate the selectecd MAC address buffer */
+  Addr[5] = ((tmpreg >> 8) & (uint8_t)0xFF);
+  Addr[4] = (tmpreg & (uint8_t)0xFF);
+  /* Load the selectecd MAC address low register */
+  tmpreg =(*(__IO uint32_t *) (ETH_MAC_ADDR_LBASE + MacAddr));
+  /* Calculate the selectecd MAC address buffer */
+  Addr[3] = ((tmpreg >> 24) & (uint8_t)0xFF);
+  Addr[2] = ((tmpreg >> 16) & (uint8_t)0xFF);
+  Addr[1] = ((tmpreg >> 8 ) & (uint8_t)0xFF);
+  Addr[0] = (tmpreg & (uint8_t)0xFF);
 }
 
 /**
   * @brief  Enables or disables the Address filter module uses the specified
-  *   ETHERNET MAC address for perfect filtering
+  *   ETHERNET MAC address for perfect filtering 
   * @param  MacAddr: specifies the ETHERNET MAC address to be used for prfect filtering.
-  *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_Address1 : MAC Address1
+  *   This parameter can be one of the following values: 
+  *     @arg ETH_MAC_Address1 : MAC Address1 
   *     @arg ETH_MAC_Address2 : MAC Address2
   *     @arg ETH_MAC_Address3 : MAC Address3
   * @param  NewState: new state of the specified ETHERNET MAC address use.
@@ -1130,31 +1167,31 @@ void ETH_GetMACAddress(uint32_t MacAddr, uint8_t *Addr)
   */
 void ETH_MACAddressPerfectFilterCmd(uint32_t MacAddr, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected ETHERNET MAC address for perfect filtering */
-        (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= ETH_MACA1HR_AE;
-    }
-    else
-    {
-        /* Disable the selected ETHERNET MAC address for perfect filtering */
-        (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &= (~(uint32_t)ETH_MACA1HR_AE);
-    }
+  /* Check the parameters */
+  assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+    
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected ETHERNET MAC address for perfect filtering */
+    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= ETH_MACA1HR_AE;
+  }
+  else
+  {
+    /* Disable the selected ETHERNET MAC address for perfect filtering */
+    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &=(~(uint32_t)ETH_MACA1HR_AE);
+  }
 }
 
 /**
-  * @brief  Set the filter type for the specified ETHERNET MAC address
-  * @param  MacAddr: specifies the ETHERNET MAC address
-  *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_Address1 : MAC Address1
+  * @brief  Set the filter type for the specified ETHERNET MAC address 
+  * @param  MacAddr: specifies the ETHERNET MAC address 
+  *   This parameter can be one of the following values: 
+  *     @arg ETH_MAC_Address1 : MAC Address1 
   *     @arg ETH_MAC_Address2 : MAC Address2
   *     @arg ETH_MAC_Address3 : MAC Address3
-  * @param  Filter: specifies the used frame received field for comparaison
-  *   This parameter can be one of the following values:
+  * @param  Filter: specifies the used frame received field for comparaison 
+  *   This parameter can be one of the following values: 
   *     @arg ETH_MAC_AddressFilter_SA : MAC Address is used to compare with the
   *                                     SA fields of the received frame.
   *     @arg ETH_MAC_AddressFilter_DA : MAC Address is used to compare with the
@@ -1163,33 +1200,33 @@ void ETH_MACAddressPerfectFilterCmd(uint32_t MacAddr, FunctionalState NewState)
   */
 void ETH_MACAddressFilterConfig(uint32_t MacAddr, uint32_t Filter)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
-    assert_param(IS_ETH_MAC_ADDRESS_FILTER(Filter));
-
-    if (Filter != ETH_MAC_AddressFilter_DA)
-    {
-        /* The selected ETHERNET MAC address is used to compare with the SA fields of the
-           received frame. */
-        (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= ETH_MACA1HR_SA;
-    }
-    else
-    {
-        /* The selected ETHERNET MAC address is used to compare with the DA fields of the
-           received frame. */
-        (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &= (~(uint32_t)ETH_MACA1HR_SA);
-    }
+  /* Check the parameters */
+  assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
+  assert_param(IS_ETH_MAC_ADDRESS_FILTER(Filter));
+  
+  if (Filter != ETH_MAC_AddressFilter_DA)
+  {
+    /* The selected ETHERNET MAC address is used to compare with the SA fields of the
+       received frame. */
+    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= ETH_MACA1HR_SA;
+  }
+  else
+  {
+    /* The selected ETHERNET MAC address is used to compare with the DA fields of the
+       received frame. */
+    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &=(~(uint32_t)ETH_MACA1HR_SA);
+  }
 }
 
 /**
-  * @brief  Set the filter type for the specified ETHERNET MAC address
-  * @param  MacAddr: specifies the ETHERNET MAC address
-  *   This parameter can be one of the following values:
-  *     @arg ETH_MAC_Address1 : MAC Address1
+  * @brief  Set the filter type for the specified ETHERNET MAC address 
+  * @param  MacAddr: specifies the ETHERNET MAC address 
+  *   This parameter can be one of the following values: 
+  *     @arg ETH_MAC_Address1 : MAC Address1 
   *     @arg ETH_MAC_Address2 : MAC Address2
   *     @arg ETH_MAC_Address3 : MAC Address3
-  * @param  MaskByte: specifies the used address bytes for comparaison
-  *   This parameter can be any combination of the following values:
+  * @param  MaskByte: specifies the used address bytes for comparaison 
+  *   This parameter can be any combination of the following values: 
   *     @arg ETH_MAC_AddressMask_Byte6 : Mask MAC Address high reg bits [15:8].
   *     @arg ETH_MAC_AddressMask_Byte5 : Mask MAC Address high reg bits [7:0].
   *     @arg ETH_MAC_AddressMask_Byte4 : Mask MAC Address low reg bits [31:24].
@@ -1200,20 +1237,20 @@ void ETH_MACAddressFilterConfig(uint32_t MacAddr, uint32_t Filter)
   */
 void ETH_MACAddressMaskBytesFilterConfig(uint32_t MacAddr, uint32_t MaskByte)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
-    assert_param(IS_ETH_MAC_ADDRESS_MASK(MaskByte));
-
-    /* Clear MBC bits in the selected MAC address  high register */
-    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &= (~(uint32_t)ETH_MACA1HR_MBC);
-    /* Set the selected Filetr mask bytes */
-    (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= MaskByte;
+  /* Check the parameters */
+  assert_param(IS_ETH_MAC_ADDRESS123(MacAddr));
+  assert_param(IS_ETH_MAC_ADDRESS_MASK(MaskByte));
+  
+  /* Clear MBC bits in the selected MAC address  high register */
+  (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) &=(~(uint32_t)ETH_MACA1HR_MBC);
+  /* Set the selected Filetr mask bytes */
+  (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) |= MaskByte;
 }
 /*------------------------  DMA Tx/Rx Desciptors -----------------------------*/
 
 /**
   * @brief  Initializes the DMA Tx descriptors in chain mode.
-  * @param  DMATxDescTab: Pointer on the first Tx desc list
+  * @param  DMATxDescTab: Pointer on the first Tx desc list 
   * @param  TxBuff: Pointer on the first TxBuffer list
   * @param  TxBuffCount: Number of the used Tx desc in the list
   * @retval None
@@ -1261,7 +1298,7 @@ void ETH_DMATxDescChainInit(ETH_DMADESCTypeDef *DMATxDescTab, uint8_t *TxBuff, u
   * @param  TxBuff2: Pointer on the first TxBuffer2 list
   * @param  TxBuffCount: Number of the used Tx desc in the list
   *   Note: see decriptor skip length defined in ETH_DMA_InitStruct
-  *   for the number of Words to skip between two unchained descriptors.
+  *   for the number of Words to skip between two unchained descriptors.  
   * @retval None
   */
 void ETH_DMATxDescRingInit(ETH_DMADESCTypeDef *DMATxDescTab, uint8_t *TxBuff1, uint8_t *TxBuff2,
@@ -1321,7 +1358,7 @@ void ETH_DMATxDescRingInit(ETH_DMADESCTypeDef *DMATxDescTab, uint8_t *TxBuff1, u
   *     @arg ETH_DMATxDesc_LCO : Late Collision: transmission aborted due to collision
   *     @arg ETH_DMATxDesc_EC  : Excessive Collision: transmission aborted after 16 collisions
   *     @arg ETH_DMATxDesc_VF  : VLAN Frame
-  *     @arg ETH_DMATxDesc_CC  : Collision Count
+  *     @arg ETH_DMATxDesc_CC  : Collision Count 
   *     @arg ETH_DMATxDesc_ED  : Excessive Deferral
   *     @arg ETH_DMATxDesc_UF  : Underflow Error: late data arrival from the memory
   *     @arg ETH_DMATxDesc_DB  : Deferred Bit
@@ -1367,8 +1404,8 @@ FlagStatus ETH_GetDMATxDescFlagStatus(ETH_DMADESCTypeDef *DMATxDesc, uint32_t ET
   */
 uint32_t ETH_GetDMATxDescCollisionCount(ETH_DMADESCTypeDef *DMATxDesc)
 {
-    /* Return the Receive descriptor frame length */
-    return ((DMATxDesc->Status & ETH_DMATxDesc_CC) >> ETH_DMATXDESC_COLLISION_COUNTSHIFT);
+  /* Return the Receive descriptor frame length */
+  return ((DMATxDesc->Status & ETH_DMATxDesc_CC) >> ETH_DMATXDESC_COLLISION_COUNTSHIFT);
 }
 
 /**
@@ -1378,32 +1415,32 @@ uint32_t ETH_GetDMATxDescCollisionCount(ETH_DMADESCTypeDef *DMATxDesc)
   */
 void ETH_SetDMATxDescOwnBit(ETH_DMADESCTypeDef *DMATxDesc)
 {
-    /* Set the DMA Tx Desc Own bit */
-    DMATxDesc->Status |= ETH_DMATxDesc_OWN;
+  /* Set the DMA Tx Desc Own bit */
+  DMATxDesc->Status |= ETH_DMATxDesc_OWN;
 }
 
 /**
   * @brief  Enables or disables the specified DMA Tx Desc Transmit interrupt.
   * @param  DMATxDesc: Pointer on a Tx desc
   * @param  NewState: new state of the DMA Tx Desc transmit interrupt.
-  *   This parameter can be: ENABLE or DISABLE.
+  *   This parameter can be: ENABLE or DISABLE.                   
   * @retval None
   */
 void ETH_DMATxDescTransmitITConfig(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the DMA Tx Desc Transmit interrupt */
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_IC;
-    }
-    else
-    {
-        /* Disable the DMA Tx Desc Transmit interrupt */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_IC);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the DMA Tx Desc Transmit interrupt */
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_IC;
+  }
+  else
+  {
+    /* Disable the DMA Tx Desc Transmit interrupt */
+    DMATxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMATxDesc_IC);
+  }
 }
 
 /**
@@ -1411,38 +1448,38 @@ void ETH_DMATxDescTransmitITConfig(ETH_DMADESCTypeDef *DMATxDesc, FunctionalStat
   * @param  DMATxDesc: Pointer on a Tx desc
   * @param  DMATxDesc_FrameSegment: specifies is the actual Tx desc contain last or first segment.
   *   This parameter can be one of the following values:
-  *     @arg ETH_DMATxDesc_LastSegment  : actual Tx desc contain last segment
-  *     @arg ETH_DMATxDesc_FirstSegment : actual Tx desc contain first segment
+  *     @arg ETH_DMATxDesc_LastSegment  : actual Tx desc contain last segment 
+  *     @arg ETH_DMATxDesc_FirstSegment : actual Tx desc contain first segment                   
   * @retval None
   */
 void ETH_DMATxDescFrameSegmentConfig(ETH_DMADESCTypeDef *DMATxDesc, uint32_t DMATxDesc_FrameSegment)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_DMA_TXDESC_SEGMENT(DMATxDesc_FrameSegment));
-
-    /* Selects the DMA Tx Desc Frame segment */
-    DMATxDesc->ControlBufferSize |= DMATxDesc_FrameSegment;
+  /* Check the parameters */
+  assert_param(IS_ETH_DMA_TXDESC_SEGMENT(DMATxDesc_FrameSegment));
+  
+  /* Selects the DMA Tx Desc Frame segment */
+  DMATxDesc->ControlBufferSize |= DMATxDesc_FrameSegment;
 }
 
 /**
   * @brief  Selects the specified ETHERNET DMA Tx Desc Checksum Insertion.
-  * @param  DMATxDesc: pointer on a DMA Tx descriptor
+  * @param  DMATxDesc: pointer on a DMA Tx descriptor 
   * @param  DMATxDesc_Checksum: specifies is the DMA Tx desc checksum insertion.
   *   This parameter can be one of the following values:
   *     @arg ETH_DMATxDesc_ChecksumByPass : Checksum bypass
   *     @arg ETH_DMATxDesc_ChecksumIPV4Header : IPv4 header checksum
   *     @arg ETH_DMATxDesc_ChecksumTCPUDPICMPSegment : TCP/UDP/ICMP checksum. Pseudo header checksum is assumed to be present
-  *     @arg ETH_DMATxDesc_ChecksumTCPUDPICMPFull : TCP/UDP/ICMP checksum fully in hardware including pseudo header
+  *     @arg ETH_DMATxDesc_ChecksumTCPUDPICMPFull : TCP/UDP/ICMP checksum fully in hardware including pseudo header                                                                
   * @retval None
   */
 void ETH_DMATxDescChecksumInsertionConfig(ETH_DMADESCTypeDef *DMATxDesc,
         uint32_t DMATxDesc_Checksum)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_DMA_TXDESC_CHECKSUM(DMATxDesc_Checksum));
-
-    /* Set the selected DMA Tx desc checksum insertion control */
-    DMATxDesc->ControlBufferSize |= DMATxDesc_Checksum;
+  /* Check the parameters */
+  assert_param(IS_ETH_DMA_TXDESC_CHECKSUM(DMATxDesc_Checksum));
+  
+  /* Set the selected DMA Tx desc checksum insertion control */
+  DMATxDesc->ControlBufferSize |= DMATxDesc_Checksum;
 }
 
 /**
@@ -1454,19 +1491,19 @@ void ETH_DMATxDescChecksumInsertionConfig(ETH_DMADESCTypeDef *DMATxDesc,
   */
 void ETH_DMATxDescCRCCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Tx Desc CRC */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_DC);
-    }
-    else
-    {
-        /* Disable the selected DMA Tx Desc CRC */
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_DC;
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Tx Desc CRC */
+    DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_DC);
+  }
+  else
+  {
+    /* Disable the selected DMA Tx Desc CRC */
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_DC; 
+  }
 }
 
 /**
@@ -1478,19 +1515,19 @@ void ETH_DMATxDescCRCCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState
   */
 void ETH_DMATxDescEndOfRingCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Tx Desc end of ring */
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TER;
-    }
-    else
-    {
-        /* Disable the selected DMA Tx Desc end of ring */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_TER);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Tx Desc end of ring */
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TER;  
+  }
+  else
+  {
+    /* Disable the selected DMA Tx Desc end of ring */
+    DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_TER); 
+  }
 }
 
 /**
@@ -1502,19 +1539,19 @@ void ETH_DMATxDescEndOfRingCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState Ne
   */
 void ETH_DMATxDescSecondAddressChainedCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Tx Desc second address chained */
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TCH;
-    }
-    else
-    {
-        /* Disable the selected DMA Tx Desc second address chained */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_TCH);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Tx Desc second address chained */
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TCH;  
+  }
+  else
+  {
+    /* Disable the selected DMA Tx Desc second address chained */
+    DMATxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMATxDesc_TCH); 
+  }
 }
 
 /**
@@ -1526,19 +1563,19 @@ void ETH_DMATxDescSecondAddressChainedCmd(ETH_DMADESCTypeDef *DMATxDesc, Functio
   */
 void ETH_DMATxDescShortFramePaddingCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Tx Desc padding for frame shorter than 64 bytes */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_DP);
-    }
-    else
-    {
-        /* Disable the selected DMA Tx Desc padding for frame shorter than 64 bytes*/
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_DP;
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Tx Desc padding for frame shorter than 64 bytes */
+    DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_DP);
+  }
+  else
+  {
+    /* Disable the selected DMA Tx Desc padding for frame shorter than 64 bytes*/
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_DP; 
+  }
 }
 
 /**
@@ -1550,19 +1587,19 @@ void ETH_DMATxDescShortFramePaddingCmd(ETH_DMADESCTypeDef *DMATxDesc, Functional
   */
 void ETH_DMATxDescTimeStampCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Tx Desc time stamp */
-        DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TTSE;
-    }
-    else
-    {
-        /* Disable the selected DMA Tx Desc time stamp */
-        DMATxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMATxDesc_TTSE);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Tx Desc time stamp */
+    DMATxDesc->ControlBufferSize |= ETH_DMATxDesc_TTSE;  
+  }
+  else
+  {
+    /* Disable the selected DMA Tx Desc time stamp */
+    DMATxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMATxDesc_TTSE); 
+  }
 }
 
 /**
@@ -1575,17 +1612,17 @@ void ETH_DMATxDescTimeStampCmd(ETH_DMADESCTypeDef *DMATxDesc, FunctionalState Ne
 void ETH_DMATxDescBufferSizeConfig(ETH_DMADESCTypeDef *DMATxDesc, uint32_t BufferSize1,
                                    uint32_t BufferSize2)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_DMATxDESC_BUFFER_SIZE(BufferSize1));
-    assert_param(IS_ETH_DMATxDESC_BUFFER_SIZE(BufferSize2));
-
-    /* Set the DMA Tx Desc buffer1 and buffer2 sizes values */
-    DMATxDesc->ControlBufferSize |= (BufferSize1 | (BufferSize2 << ETH_DMATXDESC_BUFFER2_SIZESHIFT));
+  /* Check the parameters */
+  assert_param(IS_ETH_DMATxDESC_BUFFER_SIZE(BufferSize1));
+  assert_param(IS_ETH_DMATxDESC_BUFFER_SIZE(BufferSize2));
+  
+  /* Set the DMA Tx Desc buffer1 and buffer2 sizes values */
+  DMATxDesc->ControlBufferSize |= (BufferSize1 | (BufferSize2 << ETH_DMATXDESC_BUFFER2_SIZESHIFT));
 }
 
 /**
   * @brief  Initializes the DMA Rx descriptors in chain mode.
-  * @param  DMARxDescTab: Pointer on the first Rx desc list
+  * @param  DMARxDescTab: Pointer on the first Rx desc list 
   * @param  RxBuff: Pointer on the first RxBuffer list
   * @param  RxBuffCount: Number of the used Rx desc in the list
   * @retval None
@@ -1629,12 +1666,12 @@ void ETH_DMARxDescChainInit(ETH_DMADESCTypeDef *DMARxDescTab, uint8_t *RxBuff, u
 
 /**
   * @brief  Initializes the DMA Rx descriptors in ring mode.
-  * @param  DMARxDescTab: Pointer on the first Rx desc list
-  * @param  RxBuff1: Pointer on the first RxBuffer1 list
+  * @param  DMARxDescTab: Pointer on the first Rx desc list 
+  * @param  RxBuff1: Pointer on the first RxBuffer1 list 
   * @param  RxBuff2: Pointer on the first RxBuffer2 list
   * @param  RxBuffCount: Number of the used Rx desc in the list
   *   Note: see decriptor skip length defined in ETH_DMA_InitStruct
-  *   for the number of Words to skip between two unchained descriptors.
+  *   for the number of Words to skip between two unchained descriptors.  
   * @retval None
   */
 void ETH_DMARxDescRingInit(ETH_DMADESCTypeDef *DMARxDescTab, uint8_t *RxBuff1, uint8_t *RxBuff2,
@@ -1677,7 +1714,7 @@ void ETH_DMARxDescRingInit(ETH_DMADESCTypeDef *DMARxDescTab, uint8_t *RxBuff1, u
   * @param  DMARxDesc: pointer on a DMA Rx descriptor
   * @param  ETH_DMARxDescFlag: specifies the flag to check.
   *   This parameter can be one of the following values:
-  *     @arg ETH_DMARxDesc_OWN:         OWN bit: descriptor is owned by DMA engine
+  *     @arg ETH_DMARxDesc_OWN:         OWN bit: descriptor is owned by DMA engine 
   *     @arg ETH_DMARxDesc_AFM:         DA Filter Fail for the rx frame
   *     @arg ETH_DMARxDesc_ES:          Error summary
   *     @arg ETH_DMARxDesc_DE:          Desciptor error: no more descriptors for receive frame
@@ -1687,7 +1724,7 @@ void ETH_DMARxDescRingInit(ETH_DMADESCTypeDef *DMARxDescTab, uint8_t *RxBuff1, u
   *     @arg ETH_DMARxDesc_VLAN:        VLAN Tag: received frame is a VLAN frame
   *     @arg ETH_DMARxDesc_FS:          First descriptor of the frame
   *     @arg ETH_DMARxDesc_LS:          Last descriptor of the frame
-  *     @arg ETH_DMARxDesc_IPV4HCE:     IPC Checksum Error/Giant Frame: Rx Ipv4 header checksum error
+  *     @arg ETH_DMARxDesc_IPV4HCE:     IPC Checksum Error/Giant Frame: Rx Ipv4 header checksum error 
   *     @arg ETH_DMARxDesc_LC:          Late collision occurred during reception
   *     @arg ETH_DMARxDesc_FT:          Frame type - Ethernet, otherwise 802.3
   *     @arg ETH_DMARxDesc_RWT:         Receive Watchdog Timeout: watchdog timer expired during reception
@@ -1699,18 +1736,18 @@ void ETH_DMARxDescRingInit(ETH_DMADESCTypeDef *DMARxDescTab, uint8_t *RxBuff1, u
   */
 FlagStatus ETH_GetDMARxDescFlagStatus(ETH_DMADESCTypeDef *DMARxDesc, uint32_t ETH_DMARxDescFlag)
 {
-    FlagStatus bitstatus = RESET;
-    /* Check the parameters */
-    assert_param(IS_ETH_DMARxDESC_GET_FLAG(ETH_DMARxDescFlag));
-    if ((DMARxDesc->Status & ETH_DMARxDescFlag) != (uint32_t)RESET)
-    {
-        bitstatus = SET;
-    }
-    else
-    {
-        bitstatus = RESET;
-    }
-    return bitstatus;
+  FlagStatus bitstatus = RESET;
+  /* Check the parameters */
+  assert_param(IS_ETH_DMARxDESC_GET_FLAG(ETH_DMARxDescFlag));
+  if ((DMARxDesc->Status & ETH_DMARxDescFlag) != (uint32_t)RESET)
+  {
+    bitstatus = SET;
+  }
+  else
+  {
+    bitstatus = RESET;
+  }
+  return bitstatus;
 }
 
 /**
@@ -1720,43 +1757,43 @@ FlagStatus ETH_GetDMARxDescFlagStatus(ETH_DMADESCTypeDef *DMARxDesc, uint32_t ET
   */
 void ETH_SetDMARxDescOwnBit(ETH_DMADESCTypeDef *DMARxDesc)
 {
-    /* Set the DMA Rx Desc Own bit */
-    DMARxDesc->Status |= ETH_DMARxDesc_OWN;
+  /* Set the DMA Rx Desc Own bit */
+  DMARxDesc->Status |= ETH_DMARxDesc_OWN;
 }
 
 /**
   * @brief  Returns the specified DMA Rx Desc frame length.
-  * @param  DMARxDesc: pointer on a DMA Rx descriptor
+  * @param  DMARxDesc: pointer on a DMA Rx descriptor                     
   * @retval The Rx descriptor received frame length.
   */
 uint32_t ETH_GetDMARxDescFrameLength(ETH_DMADESCTypeDef *DMARxDesc)
 {
-    /* Return the Receive descriptor frame length */
-    return ((DMARxDesc->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT);
+  /* Return the Receive descriptor frame length */
+  return ((DMARxDesc->Status & ETH_DMARxDesc_FL) >> ETH_DMARXDESC_FRAME_LENGTHSHIFT);
 }
 
 /**
   * @brief  Enables or disables the specified DMA Rx Desc receive interrupt.
   * @param  DMARxDesc: Pointer on a Rx desc
   * @param  NewState: new state of the specified DMA Rx Desc interrupt.
-  *   This parameter can be: ENABLE or DISABLE.
+  *   This parameter can be: ENABLE or DISABLE.                   
   * @retval None
   */
 void ETH_DMARxDescReceiveITConfig(ETH_DMADESCTypeDef *DMARxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the DMA Rx Desc receive interrupt */
-        DMARxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMARxDesc_DIC);
-    }
-    else
-    {
-        /* Disable the DMA Rx Desc receive interrupt */
-        DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_DIC;
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the DMA Rx Desc receive interrupt */
+    DMARxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMARxDesc_DIC);
+  }
+  else
+  {
+    /* Disable the DMA Rx Desc receive interrupt */
+    DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_DIC;
+  }
 }
 
 /**
@@ -1768,19 +1805,19 @@ void ETH_DMARxDescReceiveITConfig(ETH_DMADESCTypeDef *DMARxDesc, FunctionalState
   */
 void ETH_DMARxDescEndOfRingCmd(ETH_DMADESCTypeDef *DMARxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Rx Desc end of ring */
-        DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_RER;
-    }
-    else
-    {
-        /* Disable the selected DMA Rx Desc end of ring */
-        DMARxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMARxDesc_RER);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Rx Desc end of ring */
+    DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_RER;  
+  }
+  else
+  {
+    /* Disable the selected DMA Rx Desc end of ring */
+    DMARxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMARxDesc_RER); 
+  }
 }
 
 /**
@@ -1792,45 +1829,45 @@ void ETH_DMARxDescEndOfRingCmd(ETH_DMADESCTypeDef *DMARxDesc, FunctionalState Ne
   */
 void ETH_DMARxDescSecondAddressChainedCmd(ETH_DMADESCTypeDef *DMARxDesc, FunctionalState NewState)
 {
-    /* Check the parameters */
-    assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-    if (NewState != DISABLE)
-    {
-        /* Enable the selected DMA Rx Desc second address chained */
-        DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_RCH;
-    }
-    else
-    {
-        /* Disable the selected DMA Rx Desc second address chained */
-        DMARxDesc->ControlBufferSize &= (~(uint32_t)ETH_DMARxDesc_RCH);
-    }
+  /* Check the parameters */
+  assert_param(IS_FUNCTIONAL_STATE(NewState));
+  
+  if (NewState != DISABLE)
+  {
+    /* Enable the selected DMA Rx Desc second address chained */
+    DMARxDesc->ControlBufferSize |= ETH_DMARxDesc_RCH;  
+  }
+  else
+  {
+    /* Disable the selected DMA Rx Desc second address chained */
+    DMARxDesc->ControlBufferSize &=(~(uint32_t)ETH_DMARxDesc_RCH); 
+  }
 }
 
 /**
   * @brief  Returns the specified ETHERNET DMA Rx Desc buffer size.
-  * @param  DMARxDesc: pointer on a DMA Rx descriptor
+  * @param  DMARxDesc: pointer on a DMA Rx descriptor 
   * @param  DMARxDesc_Buffer: specifies the DMA Rx Desc buffer.
   *   This parameter can be any one of the following values:
   *     @arg ETH_DMARxDesc_Buffer1 : DMA Rx Desc Buffer1
-  *     @arg ETH_DMARxDesc_Buffer2 : DMA Rx Desc Buffer2
+  *     @arg ETH_DMARxDesc_Buffer2 : DMA Rx Desc Buffer2                     
   * @retval The Receive descriptor frame length.
   */
 uint32_t ETH_GetDMARxDescBufferSize(ETH_DMADESCTypeDef *DMARxDesc, uint32_t DMARxDesc_Buffer)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_DMA_RXDESC_BUFFER(DMARxDesc_Buffer));
-
-    if(DMARxDesc_Buffer != ETH_DMARxDesc_Buffer1)
-    {
-        /* Return the DMA Rx Desc buffer2 size */
-        return ((DMARxDesc->ControlBufferSize & ETH_DMARxDesc_RBS2) >> ETH_DMARXDESC_BUFFER2_SIZESHIFT);
-    }
-    else
-    {
-        /* Return the DMA Rx Desc buffer1 size */
-        return (DMARxDesc->ControlBufferSize & ETH_DMARxDesc_RBS1);
-    }
+  /* Check the parameters */
+  assert_param(IS_ETH_DMA_RXDESC_BUFFER(DMARxDesc_Buffer));
+  
+  if(DMARxDesc_Buffer != ETH_DMARxDesc_Buffer1)
+  {
+    /* Return the DMA Rx Desc buffer2 size */
+    return ((DMARxDesc->ControlBufferSize & ETH_DMARxDesc_RBS2) >> ETH_DMARXDESC_BUFFER2_SIZESHIFT); 
+  }
+  else
+  {
+    /* Return the DMA Rx Desc buffer1 size */
+    return (DMARxDesc->ControlBufferSize & ETH_DMARxDesc_RBS1); 
+  }
 }
 
 /*---------------------------------  DMA  ------------------------------------*/
@@ -1873,26 +1910,26 @@ FlagStatus ETH_GetSoftwareResetStatus(void)
   * @param  ETH_DMA_FLAG: specifies the flag to check.
   *   This parameter can be one of the following values:
   *     @arg ETH_DMA_FLAG_TST : Time-stamp trigger flag
-  *     @arg ETH_DMA_FLAG_PMT : PMT flag
-  *     @arg ETH_DMA_FLAG_MMC : MMC flag
+  *     @arg ETH_DMA_FLAG_PMT : PMT flag 
+  *     @arg ETH_DMA_FLAG_MMC : MMC flag 
   *     @arg ETH_DMA_FLAG_DataTransferError : Error bits 0-data buffer, 1-desc. access
   *     @arg ETH_DMA_FLAG_ReadWriteError    : Error bits 0-write trnsf, 1-read transfr
   *     @arg ETH_DMA_FLAG_AccessError       : Error bits 0-Rx DMA, 1-Tx DMA
   *     @arg ETH_DMA_FLAG_NIS : Normal interrupt summary flag
-  *     @arg ETH_DMA_FLAG_AIS : Abnormal interrupt summary flag
-  *     @arg ETH_DMA_FLAG_ER  : Early receive flag
-  *     @arg ETH_DMA_FLAG_FBE : Fatal bus error flag
-  *     @arg ETH_DMA_FLAG_ET  : Early transmit flag
-  *     @arg ETH_DMA_FLAG_RWT : Receive watchdog timeout flag
-  *     @arg ETH_DMA_FLAG_RPS : Receive process stopped flag
-  *     @arg ETH_DMA_FLAG_RBU : Receive buffer unavailable flag
-  *     @arg ETH_DMA_FLAG_R   : Receive flag
-  *     @arg ETH_DMA_FLAG_TU  : Underflow flag
-  *     @arg ETH_DMA_FLAG_RO  : Overflow flag
-  *     @arg ETH_DMA_FLAG_TJT : Transmit jabber timeout flag
-  *     @arg ETH_DMA_FLAG_TBU : Transmit buffer unavailable flag
-  *     @arg ETH_DMA_FLAG_TPS : Transmit process stopped flag
-  *     @arg ETH_DMA_FLAG_T   : Transmit flag
+  *     @arg ETH_DMA_FLAG_AIS : Abnormal interrupt summary flag  
+  *     @arg ETH_DMA_FLAG_ER  : Early receive flag 
+  *     @arg ETH_DMA_FLAG_FBE : Fatal bus error flag 
+  *     @arg ETH_DMA_FLAG_ET  : Early transmit flag 
+  *     @arg ETH_DMA_FLAG_RWT : Receive watchdog timeout flag 
+  *     @arg ETH_DMA_FLAG_RPS : Receive process stopped flag 
+  *     @arg ETH_DMA_FLAG_RBU : Receive buffer unavailable flag 
+  *     @arg ETH_DMA_FLAG_R   : Receive flag 
+  *     @arg ETH_DMA_FLAG_TU  : Underflow flag 
+  *     @arg ETH_DMA_FLAG_RO  : Overflow flag 
+  *     @arg ETH_DMA_FLAG_TJT : Transmit jabber timeout flag 
+  *     @arg ETH_DMA_FLAG_TBU : Transmit buffer unavailable flag 
+  *     @arg ETH_DMA_FLAG_TPS : Transmit process stopped flag 
+  *     @arg ETH_DMA_FLAG_T   : Transmit flag 
   * @retval The new state of ETH_DMA_FLAG (SET or RESET).
   */
 FlagStatus ETH_GetDMAFlagStatus(uint32_t ETH_DMA_FLAG)
@@ -1916,19 +1953,19 @@ FlagStatus ETH_GetDMAFlagStatus(uint32_t ETH_DMA_FLAG)
   * @param  ETH_DMA_FLAG: specifies the flag to clear.
   *   This parameter can be any combination of the following values:
   *     @arg ETH_DMA_FLAG_NIS : Normal interrupt summary flag
-  *     @arg ETH_DMA_FLAG_AIS : Abnormal interrupt summary flag
-  *     @arg ETH_DMA_FLAG_ER  : Early receive flag
-  *     @arg ETH_DMA_FLAG_FBE : Fatal bus error flag
-  *     @arg ETH_DMA_FLAG_ETI : Early transmit flag
-  *     @arg ETH_DMA_FLAG_RWT : Receive watchdog timeout flag
-  *     @arg ETH_DMA_FLAG_RPS : Receive process stopped flag
-  *     @arg ETH_DMA_FLAG_RBU : Receive buffer unavailable flag
-  *     @arg ETH_DMA_FLAG_R   : Receive flag
-  *     @arg ETH_DMA_FLAG_TU  : Transmit Underflow flag
-  *     @arg ETH_DMA_FLAG_RO  : Receive Overflow flag
-  *     @arg ETH_DMA_FLAG_TJT : Transmit jabber timeout flag
-  *     @arg ETH_DMA_FLAG_TBU : Transmit buffer unavailable flag
-  *     @arg ETH_DMA_FLAG_TPS : Transmit process stopped flag
+  *     @arg ETH_DMA_FLAG_AIS : Abnormal interrupt summary flag 
+  *     @arg ETH_DMA_FLAG_ER  : Early receive flag 
+  *     @arg ETH_DMA_FLAG_FBE : Fatal bus error flag 
+  *     @arg ETH_DMA_FLAG_ETI : Early transmit flag 
+  *     @arg ETH_DMA_FLAG_RWT : Receive watchdog timeout flag 
+  *     @arg ETH_DMA_FLAG_RPS : Receive process stopped flag 
+  *     @arg ETH_DMA_FLAG_RBU : Receive buffer unavailable flag 
+  *     @arg ETH_DMA_FLAG_R   : Receive flag 
+  *     @arg ETH_DMA_FLAG_TU  : Transmit Underflow flag 
+  *     @arg ETH_DMA_FLAG_RO  : Receive Overflow flag 
+  *     @arg ETH_DMA_FLAG_TJT : Transmit jabber timeout flag 
+  *     @arg ETH_DMA_FLAG_TBU : Transmit buffer unavailable flag 
+  *     @arg ETH_DMA_FLAG_TPS : Transmit process stopped flag 
   *     @arg ETH_DMA_FLAG_T   : Transmit flag
   * @retval None
   */
@@ -1946,23 +1983,23 @@ void ETH_DMAClearFlag(uint32_t ETH_DMA_FLAG)
   * @param  ETH_DMA_IT: specifies the interrupt source to check.
   *   This parameter can be one of the following values:
   *     @arg ETH_DMA_IT_TST : Time-stamp trigger interrupt
-  *     @arg ETH_DMA_IT_PMT : PMT interrupt
+  *     @arg ETH_DMA_IT_PMT : PMT interrupt 
   *     @arg ETH_DMA_IT_MMC : MMC interrupt
-  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary
-  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary
-  *     @arg ETH_DMA_IT_ER  : Early receive interrupt
-  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt
-  *     @arg ETH_DMA_IT_ET  : Early transmit interrupt
-  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt
-  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt
-  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_R   : Receive interrupt
-  *     @arg ETH_DMA_IT_TU  : Underflow interrupt
-  *     @arg ETH_DMA_IT_RO  : Overflow interrupt
-  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt
-  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt
-  *     @arg ETH_DMA_IT_T   : Transmit interrupt
+  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary 
+  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary  
+  *     @arg ETH_DMA_IT_ER  : Early receive interrupt 
+  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt 
+  *     @arg ETH_DMA_IT_ET  : Early transmit interrupt 
+  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt 
+  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt 
+  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_R   : Receive interrupt 
+  *     @arg ETH_DMA_IT_TU  : Underflow interrupt 
+  *     @arg ETH_DMA_IT_RO  : Overflow interrupt 
+  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt 
+  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt 
+  *     @arg ETH_DMA_IT_T   : Transmit interrupt 
   * @retval The new state of ETH_DMA_IT (SET or RESET).
   */
 ITStatus ETH_GetDMAITStatus(uint32_t ETH_DMA_IT)
@@ -1985,20 +2022,20 @@ ITStatus ETH_GetDMAITStatus(uint32_t ETH_DMA_IT)
   * @brief  Clears the ETHERNET抯 DMA IT pending bit.
   * @param  ETH_DMA_IT: specifies the interrupt pending bit to clear.
   *   This parameter can be any combination of the following values:
-  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary
-  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary
-  *     @arg ETH_DMA_IT_ER  : Early receive interrupt
-  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt
-  *     @arg ETH_DMA_IT_ETI : Early transmit interrupt
-  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt
-  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt
-  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_R   : Receive interrupt
-  *     @arg ETH_DMA_IT_TU  : Transmit Underflow interrupt
-  *     @arg ETH_DMA_IT_RO  : Receive Overflow interrupt
-  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt
-  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt
+  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary 
+  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary  
+  *     @arg ETH_DMA_IT_ER  : Early receive interrupt 
+  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt 
+  *     @arg ETH_DMA_IT_ETI : Early transmit interrupt 
+  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt 
+  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt 
+  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_R   : Receive interrupt 
+  *     @arg ETH_DMA_IT_TU  : Transmit Underflow interrupt 
+  *     @arg ETH_DMA_IT_RO  : Receive Overflow interrupt 
+  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt 
+  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt 
   *     @arg ETH_DMA_IT_T   : Transmit interrupt
   * @retval None
   */
@@ -2017,7 +2054,7 @@ void ETH_DMAClearITPendingBit(uint32_t ETH_DMA_IT)
   * @retval The new ETHERNET DMA Transmit Process State:
   *   This can be one of the following values:
   *     - ETH_DMA_TransmitProcess_Stopped   : Stopped - Reset or Stop Tx Command issued
-  *     - ETH_DMA_TransmitProcess_Fetching  : Running - fetching the Tx descriptor
+  *     - ETH_DMA_TransmitProcess_Fetching  : Running - fetching the Tx descriptor 
   *     - ETH_DMA_TransmitProcess_Waiting   : Running - waiting for status
   *     - ETH_DMA_TransmitProcess_Reading   : unning - reading the data from host memory
   *     - ETH_DMA_TransmitProcess_Suspended : Suspended - Tx Desciptor unavailabe
@@ -2034,11 +2071,11 @@ uint32_t ETH_GetTransmitProcessState(void)
   * @retval The new ETHERNET DMA Receive Process State:
   *   This can be one of the following values:
   *     - ETH_DMA_ReceiveProcess_Stopped   : Stopped - Reset or Stop Rx Command issued
-  *     - ETH_DMA_ReceiveProcess_Fetching  : Running - fetching the Rx descriptor
+  *     - ETH_DMA_ReceiveProcess_Fetching  : Running - fetching the Rx descriptor 
   *     - ETH_DMA_ReceiveProcess_Waiting   : Running - waiting for packet
   *     - ETH_DMA_ReceiveProcess_Suspended : Suspended - Rx Desciptor unavailable
   *     - ETH_DMA_ReceiveProcess_Closing   : Running - closing descriptor
-  *     - ETH_DMA_ReceiveProcess_Queuing   : Running - queuing the recieve frame into host memory
+  *     - ETH_DMA_ReceiveProcess_Queuing   : Running - queuing the recieve frame into host memory  
   */
 uint32_t ETH_GetReceiveProcessState(void)
 {
@@ -2047,7 +2084,7 @@ uint32_t ETH_GetReceiveProcessState(void)
 
 /**
   * @brief  Clears the ETHERNET transmit FIFO.
-  * @param  None
+  * @param  None                
   * @retval None
   */
 void ETH_FlushTransmitFIFO(void)
@@ -2058,7 +2095,7 @@ void ETH_FlushTransmitFIFO(void)
 
 /**
   * @brief  Checks whether the ETHERNET transmit FIFO bit is cleared or not.
-  * @param  None
+  * @param  None                
   * @retval The new state of ETHERNET flush transmit FIFO bit (SET or RESET).
   */
 FlagStatus ETH_GetFlushTransmitFIFOStatus(void)
@@ -2126,20 +2163,20 @@ void ETH_DMAReceptionCmd(FunctionalState NewState)
   * @param  ETH_DMA_IT: specifies the ETHERNET DMA interrupt sources to be
   *   enabled or disabled.
   *   This parameter can be any combination of the following values:
-  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary
-  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary
-  *     @arg ETH_DMA_IT_ER  : Early receive interrupt
-  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt
-  *     @arg ETH_DMA_IT_ET  : Early transmit interrupt
-  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt
-  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt
-  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_R   : Receive interrupt
-  *     @arg ETH_DMA_IT_TU  : Underflow interrupt
-  *     @arg ETH_DMA_IT_RO  : Overflow interrupt
-  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt
-  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt
-  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt
+  *     @arg ETH_DMA_IT_NIS : Normal interrupt summary 
+  *     @arg ETH_DMA_IT_AIS : Abnormal interrupt summary  
+  *     @arg ETH_DMA_IT_ER  : Early receive interrupt 
+  *     @arg ETH_DMA_IT_FBE : Fatal bus error interrupt 
+  *     @arg ETH_DMA_IT_ET  : Early transmit interrupt 
+  *     @arg ETH_DMA_IT_RWT : Receive watchdog timeout interrupt 
+  *     @arg ETH_DMA_IT_RPS : Receive process stopped interrupt 
+  *     @arg ETH_DMA_IT_RBU : Receive buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_R   : Receive interrupt 
+  *     @arg ETH_DMA_IT_TU  : Underflow interrupt 
+  *     @arg ETH_DMA_IT_RO  : Overflow interrupt 
+  *     @arg ETH_DMA_IT_TJT : Transmit jabber timeout interrupt 
+  *     @arg ETH_DMA_IT_TBU : Transmit buffer unavailable interrupt 
+  *     @arg ETH_DMA_IT_TPS : Transmit process stopped interrupt 
   *     @arg ETH_DMA_IT_T   : Transmit interrupt
   * @param  NewState: new state of the specified ETHERNET DMA interrupts.
   *   This parameter can be: ENABLE or DISABLE.
@@ -2504,13 +2541,13 @@ void ETH_MMCCountersReset(void)
 /**
   * @brief  Enables or disables the specified ETHERNET MMC interrupts.
   * @param  ETH_MMC_IT: specifies the ETHERNET MMC interrupt sources to be enabled or disabled.
-  *   This parameter can be any combination of Tx interrupt or
-  *   any combination of Rx interrupt (but not both)of the following values:
-  *     @arg ETH_MMC_IT_TGF   : When Tx good frame counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_TGFMSC: When Tx good multi col counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_TGFSC : When Tx good single col counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_RGUF  : When Rx good unicast frames counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_RFAE  : When Rx alignment error counter reaches half the maximum value
+  *   This parameter can be any combination of Tx interrupt or 
+  *   any combination of Rx interrupt (but not both)of the following values: 
+  *     @arg ETH_MMC_IT_TGF   : When Tx good frame counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_TGFMSC: When Tx good multi col counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_TGFSC : When Tx good single col counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_RGUF  : When Rx good unicast frames counter reaches half the maximum value  
+  *     @arg ETH_MMC_IT_RFAE  : When Rx alignment error counter reaches half the maximum value 
   *     @arg ETH_MMC_IT_RFCE  : When Rx crc error counter reaches half the maximum value
   * @param  NewState: new state of the specified ETHERNET MMC interrupts.
   *   This parameter can be: ENABLE or DISABLE.
@@ -2559,12 +2596,12 @@ void ETH_MMCITConfig(uint32_t ETH_MMC_IT, FunctionalState NewState)
   * @brief  Checks whether the specified ETHERNET MMC IT is set or not.
   * @param  ETH_MMC_IT: specifies the ETHERNET MMC interrupt.
   *   This parameter can be one of the following values:
-  *     @arg ETH_MMC_IT_TxFCGC: When Tx good frame counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_TxMCGC: When Tx good multi col counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_TxSCGC: When Tx good single col counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_RxUGFC: When Rx good unicast frames counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_RxAEC : When Rx alignment error counter reaches half the maximum value
-  *     @arg ETH_MMC_IT_RxCEC : When Rx crc error counter reaches half the maximum value
+  *     @arg ETH_MMC_IT_TxFCGC: When Tx good frame counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_TxMCGC: When Tx good multi col counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_TxSCGC: When Tx good single col counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_RxUGFC: When Rx good unicast frames counter reaches half the maximum value  
+  *     @arg ETH_MMC_IT_RxAEC : When Rx alignment error counter reaches half the maximum value 
+  *     @arg ETH_MMC_IT_RxCEC : When Rx crc error counter reaches half the maximum value 
   * @retval The value of ETHERNET MMC IT (SET or RESET).
   */
 ITStatus ETH_GetMMCITStatus(uint32_t ETH_MMC_IT)
@@ -2609,26 +2646,26 @@ ITStatus ETH_GetMMCITStatus(uint32_t ETH_MMC_IT)
   * @brief  Get the specified ETHERNET MMC register value.
   * @param  ETH_MMCReg: specifies the ETHERNET MMC register.
   *   This parameter can be one of the following values:
-  *     @arg ETH_MMCCR      : MMC CR register
-  *     @arg ETH_MMCRIR     : MMC RIR register
-  *     @arg ETH_MMCTIR     : MMC TIR register
-  *     @arg ETH_MMCRIMR    : MMC RIMR register
-  *     @arg ETH_MMCTIMR    : MMC TIMR register
-  *     @arg ETH_MMCTGFSCCR : MMC TGFSCCR register
-  *     @arg ETH_MMCTGFMSCCR: MMC TGFMSCCR register
+  *     @arg ETH_MMCCR      : MMC CR register 
+  *     @arg ETH_MMCRIR     : MMC RIR register 
+  *     @arg ETH_MMCTIR     : MMC TIR register 
+  *     @arg ETH_MMCRIMR    : MMC RIMR register 
+  *     @arg ETH_MMCTIMR    : MMC TIMR register 
+  *     @arg ETH_MMCTGFSCCR : MMC TGFSCCR register 
+  *     @arg ETH_MMCTGFMSCCR: MMC TGFMSCCR register  
   *     @arg ETH_MMCTGFCR   : MMC TGFCR register
-  *     @arg ETH_MMCRFCECR  : MMC RFCECR register
-  *     @arg ETH_MMCRFAECR  : MMC RFAECR register
-  *     @arg ETH_MMCRGUFCR  : MMC RGUFCRregister
+  *     @arg ETH_MMCRFCECR  : MMC RFCECR register 
+  *     @arg ETH_MMCRFAECR  : MMC RFAECR register 
+  *     @arg ETH_MMCRGUFCR  : MMC RGUFCRregister 
   * @retval The value of ETHERNET MMC Register value.
   */
 uint32_t ETH_GetMMCRegister(uint32_t ETH_MMCReg)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_MMC_REGISTER(ETH_MMCReg));
-
-    /* Return the selected register value */
-    return (*(__IO uint32_t *)(ETH_MAC_BASE + ETH_MMCReg));
+  /* Check the parameters */
+  assert_param(IS_ETH_MMC_REGISTER(ETH_MMCReg));
+  
+  /* Return the selected register value */
+  return (*(__IO uint32_t *)(ETH_MAC_BASE + ETH_MMCReg));
 }
 /*---------------------------------  PTP  ------------------------------------*/
 
@@ -2680,8 +2717,8 @@ void ETH_InitializePTPTimeStamp(void)
   * @brief  Selects the PTP Update method
   * @param  UpdateMethod: the PTP Update method
   *   This parameter can be one of the following values:
-  *     @arg ETH_PTP_FineUpdate   : Fine Update method
-  *     @arg ETH_PTP_CoarseUpdate : Coarse Update method
+  *     @arg ETH_PTP_FineUpdate   : Fine Update method 
+  *     @arg ETH_PTP_CoarseUpdate : Coarse Update method 
   * @retval None
   */
 void ETH_PTPUpdateMethodConfig(uint32_t UpdateMethod)
@@ -2728,10 +2765,10 @@ void ETH_PTPTimeStampCmd(FunctionalState NewState)
   * @brief  Checks whether the specified ETHERNET PTP flag is set or not.
   * @param  ETH_PTP_FLAG: specifies the flag to check.
   *   This parameter can be one of the following values:
-  *     @arg ETH_PTP_FLAG_TSARU : Addend Register Update
-  *     @arg ETH_PTP_FLAG_TSITE : Time Stamp Interrupt Trigger Enable
-  *     @arg ETH_PTP_FLAG_TSSTU : Time Stamp Update
-  *     @arg ETH_PTP_FLAG_TSSTI  : Time Stamp Initialize
+  *     @arg ETH_PTP_FLAG_TSARU : Addend Register Update 
+  *     @arg ETH_PTP_FLAG_TSITE : Time Stamp Interrupt Trigger Enable 
+  *     @arg ETH_PTP_FLAG_TSSTU : Time Stamp Update 
+  *     @arg ETH_PTP_FLAG_TSSTI  : Time Stamp Initialize                       
   * @retval The new state of ETHERNET PTP Flag (SET or RESET).
   */
 FlagStatus ETH_GetPTPFlagStatus(uint32_t ETH_PTP_FLAG)
@@ -2816,24 +2853,24 @@ void ETH_SetPTPTargetTime(uint32_t HighValue, uint32_t LowValue)
   * @brief  Get the specified ETHERNET PTP register value.
   * @param  ETH_PTPReg: specifies the ETHERNET PTP register.
   *   This parameter can be one of the following values:
-  *     @arg ETH_PTPTSCR  : Sub-Second Increment Register
-  *     @arg ETH_PTPSSIR  : Sub-Second Increment Register
+  *     @arg ETH_PTPTSCR  : Sub-Second Increment Register 
+  *     @arg ETH_PTPSSIR  : Sub-Second Increment Register 
   *     @arg ETH_PTPTSHR  : Time Stamp High Register
-  *     @arg ETH_PTPTSLR  : Time Stamp Low Register
-  *     @arg ETH_PTPTSHUR : Time Stamp High Update Register
+  *     @arg ETH_PTPTSLR  : Time Stamp Low Register 
+  *     @arg ETH_PTPTSHUR : Time Stamp High Update Register  
   *     @arg ETH_PTPTSLUR : Time Stamp Low Update Register
   *     @arg ETH_PTPTSAR  : Time Stamp Addend Register
-  *     @arg ETH_PTPTTHR  : Target Time High Register
-  *     @arg ETH_PTPTTLR  : Target Time Low Register
+  *     @arg ETH_PTPTTHR  : Target Time High Register 
+  *     @arg ETH_PTPTTLR  : Target Time Low Register 
   * @retval The value of ETHERNET PTP Register value.
   */
 uint32_t ETH_GetPTPRegister(uint32_t ETH_PTPReg)
 {
-    /* Check the parameters */
-    assert_param(IS_ETH_PTP_REGISTER(ETH_PTPReg));
-
-    /* Return the selected register value */
-    return (*(__IO uint32_t *)(ETH_MAC_BASE + ETH_PTPReg));
+  /* Check the parameters */
+  assert_param(IS_ETH_PTP_REGISTER(ETH_PTPReg));
+  
+  /* Return the selected register value */
+  return (*(__IO uint32_t *)(ETH_MAC_BASE + ETH_PTPReg));
 }
 
 /**
@@ -2848,40 +2885,40 @@ void ETH_DMAPTPTxDescChainInit(ETH_DMADESCTypeDef *DMATxDescTab,
                                ETH_DMADESCTypeDef *DMAPTPTxDescTab,
                                uint8_t *TxBuff, uint32_t TxBuffCount)
 {
-    uint32_t i = 0;
-    ETH_DMADESCTypeDef *DMATxDesc;
-
-    /* Set the DMATxDescToSet pointer with the first one of the DMATxDescTab list */
-    DMATxDescToSet = DMATxDescTab;
-    DMAPTPTxDescToSet = DMAPTPTxDescTab;
-    /* Fill each DMATxDesc descriptor with the right values */
-    for(i = 0; i < TxBuffCount; i++)
+  uint32_t i = 0;
+  ETH_DMADESCTypeDef *DMATxDesc;
+  
+  /* Set the DMATxDescToSet pointer with the first one of the DMATxDescTab list */
+  DMATxDescToSet = DMATxDescTab;
+  DMAPTPTxDescToSet = DMAPTPTxDescTab;
+  /* Fill each DMATxDesc descriptor with the right values */   
+  for(i=0; i < TxBuffCount; i++)
+  {
+    /* Get the pointer on the ith member of the Tx Desc list */
+    DMATxDesc = DMATxDescTab+i;
+    /* Set Second Address Chained bit and enable PTP */
+    DMATxDesc->ControlBufferSize = ETH_DMATxDesc_TCH | ETH_DMATxDesc_TTSE;  
+       
+    /* Set Buffer1 address pointer */
+    DMATxDesc->Buffer1Addr =(uint32_t)(&TxBuff[i*ETH_MAX_PACKET_SIZE]);
+    
+    /* Initialize the next descriptor with the Next Desciptor Polling Enable */
+    if(i < (TxBuffCount-1))
     {
-        /* Get the pointer on the ith member of the Tx Desc list */
-        DMATxDesc = DMATxDescTab + i;
-        /* Set Second Address Chained bit and enable PTP */
-        DMATxDesc->ControlBufferSize = ETH_DMATxDesc_TCH | ETH_DMATxDesc_TTSE;
-
-        /* Set Buffer1 address pointer */
-        DMATxDesc->Buffer1Addr = (uint32_t)(&TxBuff[i * ETH_MAX_PACKET_SIZE]);
-
-        /* Initialize the next descriptor with the Next Desciptor Polling Enable */
-        if(i < (TxBuffCount - 1))
-        {
-            /* Set next descriptor address register with next descriptor base address */
-            DMATxDesc->Buffer2NextDescAddr = (uint32_t)(DMATxDescTab + i + 1);
-        }
-        else
-        {
-            /* For last descriptor, set next descriptor address register equal to the first descriptor base address */
-            DMATxDesc->Buffer2NextDescAddr = (uint32_t) DMATxDescTab;
-        }
-        /* make DMAPTPTxDescTab points to the same addresses as DMATxDescTab */
-        (&DMAPTPTxDescTab[i])->Buffer1Addr = DMATxDesc->Buffer1Addr;
-        (&DMAPTPTxDescTab[i])->Buffer2NextDescAddr = DMATxDesc->Buffer2NextDescAddr;
+      /* Set next descriptor address register with next descriptor base address */
+      DMATxDesc->Buffer2NextDescAddr = (uint32_t)(DMATxDescTab+i+1);
     }
-    /* Store on the last DMAPTPTxDescTab desc status record the first list address */
-    (&DMAPTPTxDescTab[i - 1])->Status = (uint32_t) DMAPTPTxDescTab;
+    else
+    {
+      /* For last descriptor, set next descriptor address register equal to the first descriptor base address */ 
+      DMATxDesc->Buffer2NextDescAddr = (uint32_t) DMATxDescTab;  
+    }
+    /* make DMAPTPTxDescTab points to the same addresses as DMATxDescTab */
+    (&DMAPTPTxDescTab[i])->Buffer1Addr = DMATxDesc->Buffer1Addr;
+    (&DMAPTPTxDescTab[i])->Buffer2NextDescAddr = DMATxDesc->Buffer2NextDescAddr;
+  }
+  /* Store on the last DMAPTPTxDescTab desc status record the first list address */
+  (&DMAPTPTxDescTab[i-1])->Status = (uint32_t) DMAPTPTxDescTab;
 
     /* Set Transmit Desciptor List Address Register */
     HHD_ETH->DMATDLAR = (uint32_t) DMATxDescTab;
@@ -2889,7 +2926,7 @@ void ETH_DMAPTPTxDescChainInit(ETH_DMADESCTypeDef *DMATxDescTab,
 
 /**
   * @brief  Initializes the DMA Rx descriptors in chain mode.
-  * @param  DMARxDescTab: Pointer on the first Rx desc list
+  * @param  DMARxDescTab: Pointer on the first Rx desc list 
   * @param  DMAPTPRxDescTab: Pointer on the first PTP Rx desc list
   * @param  RxBuff: Pointer on the first RxBuffer list
   * @param  RxBuffCount: Number of the used Rx desc in the list
@@ -2899,42 +2936,42 @@ void ETH_DMAPTPRxDescChainInit(ETH_DMADESCTypeDef *DMARxDescTab,
                                ETH_DMADESCTypeDef *DMAPTPRxDescTab,
                                uint8_t *RxBuff, uint32_t RxBuffCount)
 {
-    uint32_t i = 0;
-    ETH_DMADESCTypeDef *DMARxDesc;
+  uint32_t i = 0;
+  ETH_DMADESCTypeDef *DMARxDesc;
+  
+  /* Set the DMARxDescToGet pointer with the first one of the DMARxDescTab list */
+  DMARxDescToGet = DMARxDescTab; 
+  DMAPTPRxDescToGet = DMAPTPRxDescTab;
+  /* Fill each DMARxDesc descriptor with the right values */
+  for(i=0; i < RxBuffCount; i++)
+  {
+    /* Get the pointer on the ith member of the Rx Desc list */
+    DMARxDesc = DMARxDescTab+i;
+    /* Set Own bit of the Rx descriptor Status */
+    DMARxDesc->Status = ETH_DMARxDesc_OWN;
 
-    /* Set the DMARxDescToGet pointer with the first one of the DMARxDescTab list */
-    DMARxDescToGet = DMARxDescTab;
-    DMAPTPRxDescToGet = DMAPTPRxDescTab;
-    /* Fill each DMARxDesc descriptor with the right values */
-    for(i = 0; i < RxBuffCount; i++)
+    /* Set Buffer1 size and Second Address Chained bit */
+    DMARxDesc->ControlBufferSize = ETH_DMARxDesc_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;  
+    /* Set Buffer1 address pointer */
+    DMARxDesc->Buffer1Addr = (uint32_t)(&RxBuff[i*ETH_MAX_PACKET_SIZE]);
+    
+    /* Initialize the next descriptor with the Next Desciptor Polling Enable */
+    if(i < (RxBuffCount-1))
     {
-        /* Get the pointer on the ith member of the Rx Desc list */
-        DMARxDesc = DMARxDescTab + i;
-        /* Set Own bit of the Rx descriptor Status */
-        DMARxDesc->Status = ETH_DMARxDesc_OWN;
-
-        /* Set Buffer1 size and Second Address Chained bit */
-        DMARxDesc->ControlBufferSize = ETH_DMARxDesc_RCH | (uint32_t)ETH_MAX_PACKET_SIZE;
-        /* Set Buffer1 address pointer */
-        DMARxDesc->Buffer1Addr = (uint32_t)(&RxBuff[i * ETH_MAX_PACKET_SIZE]);
-
-        /* Initialize the next descriptor with the Next Desciptor Polling Enable */
-        if(i < (RxBuffCount - 1))
-        {
-            /* Set next descriptor address register with next descriptor base address */
-            DMARxDesc->Buffer2NextDescAddr = (uint32_t)(DMARxDescTab + i + 1);
-        }
-        else
-        {
-            /* For last descriptor, set next descriptor address register equal to the first descriptor base address */
-            DMARxDesc->Buffer2NextDescAddr = (uint32_t)(DMARxDescTab);
-        }
-        /* Make DMAPTPRxDescTab points to the same addresses as DMARxDescTab */
-        (&DMAPTPRxDescTab[i])->Buffer1Addr = DMARxDesc->Buffer1Addr;
-        (&DMAPTPRxDescTab[i])->Buffer2NextDescAddr = DMARxDesc->Buffer2NextDescAddr;
+      /* Set next descriptor address register with next descriptor base address */
+      DMARxDesc->Buffer2NextDescAddr = (uint32_t)(DMARxDescTab+i+1); 
     }
-    /* Store on the last DMAPTPRxDescTab desc status record the first list address */
-    (&DMAPTPRxDescTab[i - 1])->Status = (uint32_t) DMAPTPRxDescTab;
+    else
+    {
+      /* For last descriptor, set next descriptor address register equal to the first descriptor base address */ 
+      DMARxDesc->Buffer2NextDescAddr = (uint32_t)(DMARxDescTab); 
+    }
+    /* Make DMAPTPRxDescTab points to the same addresses as DMARxDescTab */
+    (&DMAPTPRxDescTab[i])->Buffer1Addr = DMARxDesc->Buffer1Addr;
+    (&DMAPTPRxDescTab[i])->Buffer2NextDescAddr = DMARxDesc->Buffer2NextDescAddr;
+  }
+  /* Store on the last DMAPTPRxDescTab desc status record the first list address */
+  (&DMAPTPRxDescTab[i-1])->Status = (uint32_t) DMAPTPRxDescTab;
 
     /* Set Receive Desciptor List Address Register */
     HHD_ETH->DMARDLAR = (uint32_t) DMARxDescTab;
@@ -3030,7 +3067,7 @@ uint32_t ETH_HandlePTPTxPkt(uint8_t *ppkt, uint16_t FrameLength, uint32_t *PTPTx
 
 /**
   * @brief  Receives a packet and copies it to memory pointed by ppkt with Time Stamp values.
-  * @param  ppkt: pointer to application packet receive buffer.
+  * @param  ppkt: pointer to application packet receive buffer.  
   * @param  PTPRxTab: Pointer on the first PTP Rx table to store Time stamp values.
   * @retval ETH_ERROR: if there is error in reception
   *         framelength: received packet size if packet reception is correct
@@ -3108,12 +3145,13 @@ uint32_t ETH_HandlePTPRxPkt(uint8_t *ppkt, uint32_t *PTPRxTab)
 
 uint32_t ETH_GetTxDescStat()
 {
-    return DMATxDescToSet->Status;
+	return DMATxDescToSet->Status;
 }
 uint32_t ETH_GetRxDescStat()
 {
-    return DMAPTPRxDescToGet->Status;
+	return DMAPTPRxDescToGet->Status;
 }
+
 
 
 /**

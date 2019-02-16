@@ -24,23 +24,21 @@
 
 
 /* Bulk In Endpoint status structure */
-typedef struct M_EPBIN_STATUS
-{
-    void *pData;          /* Pointer to data to transmit */
-    int   nBytesLeft;     /* Number of bytes left to send */
-    BYTE  byEP;           /* Endpoint number */
-} M_EPBIN_STATUS;
-typedef M_EPBIN_STATUS *PM_EPBIN_STATUS;
+typedef struct M_EPBIN_STATUS {
+  void *pData;          /* Pointer to data to transmit */
+  int   nBytesLeft;     /* Number of bytes left to send */
+  BYTE  byEP;           /* Endpoint number */
+  } M_EPBIN_STATUS;
+typedef M_EPBIN_STATUS * PM_EPBIN_STATUS;
 
 /* Bulk Out Endpoint status structure */
-typedef struct M_EPBOUT_STATUS
-{
-    void *pData;          /* Pointer to data buffer */
-    int   nBuffLen;       /* Length of data buffer */
-    int   nBytesRecv;     /* Number of bytes received */
-    BYTE  byEP;           /* Endpoint number */
-} M_EPBOUT_STATUS;
-typedef M_EPBOUT_STATUS *PM_EPBOUT_STATUS;
+typedef struct M_EPBOUT_STATUS {
+  void *pData;          /* Pointer to data buffer */
+  int   nBuffLen;       /* Length of data buffer */
+  int   nBytesRecv;     /* Number of bytes received */
+  BYTE  byEP;           /* Endpoint number */
+  } M_EPBOUT_STATUS;
+typedef M_EPBOUT_STATUS * PM_EPBOUT_STATUS;
 
 /* Function prototypes */
 void EndpointBulkIn (PM_EPBIN_STATUS, int);

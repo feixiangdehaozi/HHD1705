@@ -11,7 +11,7 @@
 
 #define IS_RCC_AHB_PERIPH(PERIPH) ((((PERIPH) & 0xFFFFFFA8) == 0x00) && ((PERIPH) != 0x00))
 
-/** @defgroup APB2_peripheral
+/** @defgroup APB2_peripheral 
   * @{
   */
 
@@ -38,7 +38,7 @@
 #define IS_RCC_APB2_PERIPH(PERIPH) ((((PERIPH) &    0xFE3F2082) == 0x00) && ((PERIPH) != 0x00))
 
 
-/** @defgroup APB1_peripheral
+/** @defgroup APB1_peripheral 
   * @{
   */
 
@@ -59,7 +59,7 @@
 #define RCC_APB1Periph_I2C2              ((uint32_t)0x00400000)
 
 #define RCC_APB1Periph_CAN1              ((uint32_t)0x02000000)
-#define RCC_APB1Periph_CAN2              ((uint32_t)0x04000000)
+#define RCC_APB1Periph_CAN2              ((uint32_t)0x04000000) 
 #define RCC_APB1Periph_RTC               ((uint32_t)0x08000000)
 #define RCC_APB1Periph_PMU               ((uint32_t)0x10000000)
 

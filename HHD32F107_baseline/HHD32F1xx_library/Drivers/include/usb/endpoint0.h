@@ -23,15 +23,14 @@
 #define M_EP0_TX        2
 
 /* Endpoint 0 status structure */
-typedef struct M_EP0_STATUS
-{
-    int   nState;         /* IDLE/RX/TX */
-    int   nBytesLeft;     /* Number of bytes left to send in TX mode */
-    void *pData;          /* Pointer to data to transmit/receive */
-    int   nBytesRecv;     /* Number of bytes received in RX mode */
-    BYTE  byFAddr;        /* New function address */
-} M_EP0_STATUS;
-typedef M_EP0_STATUS *PM_EP0_STATUS;
+typedef struct M_EP0_STATUS {
+  int   nState;         /* IDLE/RX/TX */
+  int   nBytesLeft;     /* Number of bytes left to send in TX mode */
+  void *pData;          /* Pointer to data to transmit/receive */
+  int   nBytesRecv;     /* Number of bytes received in RX mode */
+  BYTE  byFAddr;        /* New function address */
+  } M_EP0_STATUS;
+typedef M_EP0_STATUS * PM_EP0_STATUS;
 
 #endif /* _ENDPOINT0_H_ */
 

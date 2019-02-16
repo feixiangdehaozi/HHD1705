@@ -9,7 +9,7 @@
 *******************************************************************************/
 #include <string.h>
 #include "spi.h"
-#include "hhd32f1xx.h"
+#include "HHD32f1xx.h"
 #include "hhd32f10x_conf.h"
 #include "hhd_gpio.h"
 #include "simulator_spi.h"
@@ -21,13 +21,13 @@
 *
 ********************************************************************************/
 void simulator_Init(void)
-{
-    ENABLEGPIOCCLK;
+{	
+	ENABLEGPIOCCLK;
 
-    GPIO_ConfigPinsAsOutput(SPI4_CS_PORT, SPI4_CS_PIN);
-    GPIO_ConfigPinsAsOutput(SPI4_SCK_PORT, SPI4_SCK_PIN);
-    GPIO_ConfigPinsAsInput(SPI4_MISO_PORT, SPI4_MISO_PIN);
-    GPIO_ConfigPinsAsOutput(SPI4_MOSI_PORT, SPI4_MOSI_PIN);
+	GPIO_ConfigPinsAsOutput(SPI4_CS_PORT, SPI4_CS_PIN);
+	GPIO_ConfigPinsAsOutput(SPI4_SCK_PORT, SPI4_SCK_PIN);	
+	GPIO_ConfigPinsAsInput(SPI4_MISO_PORT, SPI4_MISO_PIN);
+	GPIO_ConfigPinsAsOutput(SPI4_MOSI_PORT, SPI4_MOSI_PIN);			
 }
 
 /*****************************************************************************
@@ -38,43 +38,43 @@ void simulator_Init(void)
 *****************************************************************************/
 unsigned char readWriteByte(unsigned char data)
 {
-    unsigned char Out = 0;
+   unsigned char Out = 0;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 7) & 0x1 ;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 7) ;
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 6) & 0x1 ;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 6);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 5) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 5);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 4) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 4);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 3) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 3);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 2) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 2);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 1) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 1);
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 0) & 0x1;
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 0);
-    SPI4_CLK = 0;
-
-    return Out;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 7) & 0x1 ;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 7) ;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 6) & 0x1 ;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 6);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 5) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 5);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 4) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 4);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 3) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 3);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 2) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 2);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 1) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 1);
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 0) & 0x1;
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 0);
+	SPI4_CLK = 0;
+	
+    return Out;	
 }
 
 /***************************************************************************
@@ -84,43 +84,43 @@ unsigned char readWriteByte(unsigned char data)
 ****************************************************************************/
 unsigned char readByte(void)
 {
-    unsigned char Out = 0;
+   unsigned char Out = 0;
 
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 7) ;
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 6);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 5);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 4);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 3);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 2);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 1);
-    SPI4_CLK = 0;
-
-    SPI4_CLK = 1;
-    Out |= (SPI4_MISO << 0);
-    SPI4_CLK = 0;
-
-    return Out;
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 7) ;
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 6);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 5);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 4);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 3);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 2);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 1);
+	SPI4_CLK = 0;
+	
+	SPI4_CLK = 1;
+	Out |= (SPI4_MISO << 0);
+	SPI4_CLK = 0;
+	
+    return Out;	
 }
 
 /***************************************************************************
@@ -130,70 +130,70 @@ unsigned char readByte(void)
 ****************************************************************************/
 void WriteByte(unsigned char data)
 {
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 7) & 0x1 ;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 7) & 0x1 ;
+	SPI4_CLK = 1;
+	
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 6) & 0x1 ;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 6) & 0x1 ;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 5) & 0x1;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 5) & 0x1;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 4) & 0x1;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 4) & 0x1;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 3) & 0x1;
+	SPI4_CLK = 1;
+	
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 2) & 0x1;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 3) & 0x1;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 1) & 0x1;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 2) & 0x1;
-    SPI4_CLK = 1;
+	SPI4_CLK = 0;
+	SPI4_MOSI = (data >> 0) & 0x1;
+	SPI4_CLK = 1;
 
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 1) & 0x1;
-    SPI4_CLK = 1;
-
-    SPI4_CLK = 0;
-    SPI4_MOSI = (data >> 0) & 0x1;
-    SPI4_CLK = 1;
-
-    SPI4_CLK = 0;
+	SPI4_CLK = 0;
 
 }
 
 #if 1
 uint16_t writeArray(uint8_t *data, uint16_t byteLen)
 {
-    u16 i = 0;
-
-    SPI4_CS = 0;
-    for(i = 0; i < byteLen; i++)
-    {
-        WriteByte(data[i]);
-    }
-    SPI4_CS = 1;
-
-    return i;
+	u16 i = 0;
+	
+	SPI4_CS = 0;
+	for(i=0; i<byteLen; i++)
+	{	
+		WriteByte(data[i]);	
+	}
+	SPI4_CS = 1;	
+	
+	return i;
 }
 
 
 uint16_t readArray(uint8_t *data, uint16_t byteLen)
 {
-    u16 i = 0;
-
-    SPI4_CS = 0;
-    for(i = 0; i < byteLen; i++)
-    {
-        data[i] = readByte();
-    }
-    SPI4_CS = 1;
-
-    return i;
+	u16 i = 0;
+	
+	SPI4_CS = 0;
+	for(i=0; i<byteLen; i++)
+	{	
+		data[i] = readByte();	
+	}
+	SPI4_CS = 1;	
+	
+	return i;
 }
 
 #endif

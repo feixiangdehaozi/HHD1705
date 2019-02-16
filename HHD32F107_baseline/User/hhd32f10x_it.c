@@ -50,18 +50,18 @@ void NMI_Handler(void)
 
 /**
   * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
+
+	* @retval None
   */
 void HardFault_Handler(void)
 {
-    /* Go to infinite loop when Hard Fault exception occurs */
-    //int i;
+  /* Go to infinite loop when Hard Fault exception occurs */
+	//int i;
 
-    while (1)
-    {
-        //		i--;
-    }
+  while (1)
+  {
+//		i--;
+	}
 }
 
 /**
@@ -71,9 +71,9 @@ void HardFault_Handler(void)
   */
 void MemManage_Handler(void)
 {
-    /* Go to infinite loop when Memory Manage exception occurs */
-    while (1)
-    {}
+  /* Go to infinite loop when Memory Manage exception occurs */
+  while (1)
+  {}
 }
 
 /**
@@ -83,9 +83,9 @@ void MemManage_Handler(void)
   */
 void BusFault_Handler(void)
 {
-    /* Go to infinite loop when Bus Fault exception occurs */
-    while (1)
-    {}
+  /* Go to infinite loop when Bus Fault exception occurs */
+  while (1)
+  {}
 }
 
 /**
@@ -95,9 +95,9 @@ void BusFault_Handler(void)
   */
 void UsageFault_Handler(void)
 {
-    /* Go to infinite loop when Usage Fault exception occurs */
-    while (1)
-    {}
+  /* Go to infinite loop when Usage Fault exception occurs */
+  while (1)
+  {}
 }
 
 /**
@@ -131,8 +131,8 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-    /* Update the LocalTime by adding SYSTEMTICK_PERIOD_MS each SysTick interrupt */
-    Time_Update();
+  /* Update the LocalTime by adding SYSTEMTICK_PERIOD_MS each SysTick interrupt */
+  Time_Update();
 }
 
 /******************************************************************************/
@@ -149,15 +149,19 @@ void SysTick_Handler(void)
   */
 void ETH_IRQHandler(void)
 {
-    /* Handles all the received frames */
-    while(ETH_GetRxPktSize() != 0)
-    {
-        LwIP_Pkt_Handle();
-    }
+  /* Handles all the received frames */
+  while(ETH_GetRxPktSize() != 0) 
+  {		
+    LwIP_Pkt_Handle();
+  }
+//  if(ETH_GetReceivedFrame_IT(&state)) 
+//  {
+//	LwIP_Pkt_Handle();
+//  }
 
-    /* Clear the Eth DMA Rx IT pending bits */
-    ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
-    ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
+  /* Clear the Eth DMA Rx IT pending bits */
+  ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
+  ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
 }
 
 
@@ -170,22 +174,22 @@ void ETH_IRQHandler(void)
 // {
 
 //   if(EXTI_GetITStatus(EXTI_LINE_IOE_ITLINE) != RESET)
-//   {
+//   {   
 //     static TS_STATE* TS_State;
-//
+//     
 //     /* Check if the interrupt source is the Touch Screen */
 //     if (IOE_GetGITStatus(IOE_1_ADDR, IOE_TS_IT) & IOE_TS_IT)
 //     {
 //       /* Update the structure with the current position */
-//       TS_State = IOE_TS_GetState();
-//
+//       TS_State = IOE_TS_GetState();  
+//       
 //       if ((TS_State->TouchDetected) && (TS_State->Y < 220) && (TS_State->Y > 180))
 //       {
 //         if ((TS_State->X > 10) && (TS_State->X < 70))
 //         {
-//           GLCD_displayStringLn(Line6, " LD4                ");
+//           GLCD_displayStringLn(Line6, " LD4                ");          
 // 		  STM_EVAL_LEDOn(LED4);
-//
+// 		  
 // 		  /* Send out a TCP packet to toggle the server's led4 */
 // 		  tcp_led_control(LED4);
 //         }
@@ -193,7 +197,7 @@ void ETH_IRQHandler(void)
 //         {
 //           GLCD_displayStringLn(Line6, "      LD3           ");
 //           STM_EVAL_LEDOn(LED3);
-//
+// 		  
 // 		  /* Send out a TCP packet to toggle the server's led3 */
 // 		  tcp_led_control(LED3);
 //         }
@@ -201,15 +205,15 @@ void ETH_IRQHandler(void)
 //         {
 //           GLCD_displayStringLn(Line6, "           LD2      ");
 //           STM_EVAL_LEDOn(LED2);
-//
+// 		  
 // 		  /* Send out a TCP packet to toggle the server's led2 */
 // 		  tcp_led_control(LED2);
-//         }
+//         }     
 //         else if ((TS_State->X > 250) && (TS_State->X < 310))
 //         {
 //           GLCD_displayStringLn(Line6, "                LD1 ");
 //           STM_EVAL_LEDOn(LED1);
-//
+// 		  
 // 		  /* Send out a TCP packet to toggle the server's led1 */
 // 		  tcp_led_control(LED1);
 //         }
@@ -220,19 +224,19 @@ void ETH_IRQHandler(void)
 //         STM_EVAL_LEDOff(LED2);
 //         STM_EVAL_LEDOff(LED3);
 //         STM_EVAL_LEDOff(LED4);
-//       }
-//
-//       /* Clear the interrupt pending bits */
-//       IOE_ClearGITPending(IOE_1_ADDR, IOE_TS_IT);
+//       }    
+//       
+//       /* Clear the interrupt pending bits */    
+//       IOE_ClearGITPending(IOE_1_ADDR, IOE_TS_IT);      
 //     }
 //     else
 //     {
 //       IOE_ClearGITPending(IOE_1_ADDR, ALL_IT);
 //       IOE_ClearGITPending(IOE_2_ADDR, ALL_IT);
 //     }
-//
+//     
 //     EXTI_ClearITPendingBit(EXTI_LINE_IOE_ITLINE);
-//   }
+//   }  
 // }
 
 

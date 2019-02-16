@@ -1,9 +1,9 @@
 /**************************************************************************//**
- * $Id: system_HHD32F1xx.c,v 1.4 2015/09/22 06:28:11 jpan Exp $
+ * $Id: system_G32F1xx.c,v 1.4 2015/09/22 06:28:11 jpan Exp $
  *
- * @file     system_HHD32F1xx.c
+ * @file     system_G32F1xx.c
  * @brief    CMSIS Cortex-M3 Device Peripheral Access Layer Source File
- *           for HHD32F1xx Device Series
+ *           for G32F1xx Device Series
  * @version  1.0
  * @date     26. Sep. 2015
  * @author   MCU Team
@@ -57,13 +57,13 @@
 //                     <2=> System PLL Clock Out
 //                     <3=> WDT Oscillator
 //   </e1>
-//   <o10.0..7> System AHB Clock Divider <0-255>
+//   <o10.0..7> System AHB Clock Divider <0-255>    
 //                     <i> 0 = is disabled
-//   <o11.0..7> Select SSP PCLK Divider <0-255>
+//   <o11.0..7> Select SSP PCLK Divider <0-255> 
 //                     <i> 0 = is disabled
-//   <o12.0..7> Select UART PCLK Divider <0-255>
+//   <o12.0..7> Select UART PCLK Divider <0-255> 
 //                     <i> 0 = is disabled
-//   <o14.0..7> Select SysTick PCLK Divider <0-255>
+//   <o14.0..7> Select SysTick PCLK Divider <0-255> 
 //                     <i> 0 = is disabled
 //   <e18> CLKOUT Clock Setup
 //      <o19.0..2> Select CLKOUT clock source
@@ -71,7 +71,7 @@
 //                     <1=> System Oscillator
 //                     <2=> WDT Oscillator
 //                     <3=> Main clock
-//      <o20.0..7> Select CLKOUT PCLK Divider <0-255>
+//      <o20.0..7> Select CLKOUT PCLK Divider <0-255> 
 //                     <i> 0 = Gate
 //   </e18>
 // </e>
@@ -109,27 +109,27 @@
 
 /* Clock Configuration -------------------------------------------------------*/
 #if (CHECK_RSVD((SYSOSCCTRL_Val),  ~0x00000003))
-#error "SYSOSCCTRL: Invalid values of reserved bits!"
+   #error "SYSOSCCTRL: Invalid values of reserved bits!"
 #endif
 
 #if (CHECK_RSVD((WDTOSCCTRL_Val),  ~0x000001FF))
-#error "WDTOSCCTRL: Invalid values of reserved bits!"
+   #error "WDTOSCCTRL: Invalid values of reserved bits!"
 #endif
 
 #if (CHECK_RANGE((SYSPLLCLKSEL_Val), 0, 1))
-#error "SYSPLLCLKSEL: Value out of range!"
+   #error "SYSPLLCLKSEL: Value out of range!"
 #endif
 
 #if (CHECK_RSVD((SYSPLLCTRL_Val),  ~0x000FFFF))
-#error "SYSPLLCTRL: Invalid values of reserved bits!"
+   #error "SYSPLLCTRL: Invalid values of reserved bits!"
 #endif
 
 #if (CHECK_RSVD((MAINCLKSEL_Val),  ~0x00000003))
-#error "MAINCLKSEL: Invalid values of reserved bits!"
+   #error "MAINCLKSEL: Invalid values of reserved bits!"
 #endif
 
 #if (CHECK_RANGE((SYSAHBCLKDIV_Val), 0, 255))
-#error "SYSAHBCLKDIV: Value out of range!"
+   #error "SYSAHBCLKDIV: Value out of range!"
 #endif
 
 
@@ -147,51 +147,51 @@
 
 
 #if (CLOCK_SETUP)                         /* Clock Setup              */
-#if (MAINCLK_SETUP)                     /* Main Clock Setup         */
+  #if (MAINCLK_SETUP)                     /* Main Clock Setup         */
 
-/* sys_pllclkin calculation */
-#if   ((SYSPLLCLKSEL_Val & 0x03) == 0)
-#define __SYS_PLLCLKIN           (__IRC_OSC_CLK)
-#elif ((SYSPLLCLKSEL_Val & 0x03) == 1)
-#define __SYS_PLLCLKIN           (__SYS_OSC_CLK)
-#elif ((SYSPLLCLKSEL_Val & 0x03) == 2)
-#define __SYS_PLLCLKIN           (0)
+    /* sys_pllclkin calculation */
+    #if   ((SYSPLLCLKSEL_Val & 0x03) == 0)
+      #define __SYS_PLLCLKIN           (__IRC_OSC_CLK)
+    #elif ((SYSPLLCLKSEL_Val & 0x03) == 1)
+      #define __SYS_PLLCLKIN           (__SYS_OSC_CLK)
+    #elif ((SYSPLLCLKSEL_Val & 0x03) == 2)
+      #define __SYS_PLLCLKIN           (0)
+    #else
+      #define __SYS_PLLCLKIN           (0)
+    #endif
+
+    #if (SYSPLL_SETUP)                    /* System PLL Setup         */
+      #define  __SYS_PLLCLKOUT         (__SYS_PLLCLKIN * (SYSPLLCTRL_Val & 0x01F))
+    #else
+      #define  __SYS_PLLCLKOUT         (__SYS_PLLCLKIN * (1))
+    #endif  // SYSPLL_SETUP
+
+    /* main clock calculation */
+    #if   ((MAINCLKSEL_Val & 0x03) == 0)
+      #define __MAIN_CLOCK             (__IRC_OSC_CLK)
+    #elif ((MAINCLKSEL_Val & 0x03) == 1)
+      #define __MAIN_CLOCK             (__SYS_OSC_CLK)
+    #elif ((MAINCLKSEL_Val & 0x03) == 2)
+      #define __MAIN_CLOCK             (__SYS_PLLCLKOUT)
+    #elif ((MAINCLKSEL_Val & 0x03) == 3)
+      #define __MAIN_CLOCK             (__WDT_OSC_CLK)
+    #else
+      #define __MAIN_CLOCK             (0)
+    #endif
+
+    #define __SYSTEM_CLOCK             (__MAIN_CLOCK / SYSAHBCLKDIV_Val)
+
+  #else // SYSCLK_SETUP
+    #if (SYSAHBCLKDIV_Val == 0)
+      #define __SYSTEM_CLOCK           (0)
+    #else
+      #define __SYSTEM_CLOCK           (__XTAL / SYSAHBCLKDIV_Val)
+    #endif
+  #endif // SYSCLK_SETUP
+
 #else
-#define __SYS_PLLCLKIN           (0)
-#endif
-
-#if (SYSPLL_SETUP)                    /* System PLL Setup         */
-#define  __SYS_PLLCLKOUT         (__SYS_PLLCLKIN * (SYSPLLCTRL_Val & 0x01F))
-#else
-#define  __SYS_PLLCLKOUT         (__SYS_PLLCLKIN * (1))
-#endif  // SYSPLL_SETUP
-
-/* main clock calculation */
-#if   ((MAINCLKSEL_Val & 0x03) == 0)
-#define __MAIN_CLOCK             (__IRC_OSC_CLK)
-#elif ((MAINCLKSEL_Val & 0x03) == 1)
-#define __MAIN_CLOCK             (__SYS_OSC_CLK)
-#elif ((MAINCLKSEL_Val & 0x03) == 2)
-#define __MAIN_CLOCK             (__SYS_PLLCLKOUT)
-#elif ((MAINCLKSEL_Val & 0x03) == 3)
-#define __MAIN_CLOCK             (__WDT_OSC_CLK)
-#else
-#define __MAIN_CLOCK             (0)
-#endif
-
-#define __SYSTEM_CLOCK             (__MAIN_CLOCK / SYSAHBCLKDIV_Val)
-
-#else // SYSCLK_SETUP
-#if (SYSAHBCLKDIV_Val == 0)
-#define __SYSTEM_CLOCK           (0)
-#else
-#define __SYSTEM_CLOCK           (__XTAL / SYSAHBCLKDIV_Val)
-#endif
-#endif // SYSCLK_SETUP
-
-#else
-#define __MAIN_CLOCK                 (__IRC_OSC_CLK)
-#define __SYSTEM_CLOCK               (__XTAL)
+  #define __MAIN_CLOCK                 (__IRC_OSC_CLK)
+  #define __SYSTEM_CLOCK               (__XTAL)
 #endif  // CLOCK_SETUP
 
 
@@ -208,7 +208,7 @@ uint32_t APB2Clock       = __SYSTEM_CLOCK; /*!< APB2 Clock Frequency          */
  *----------------------------------------------------------------------------*/
 void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 {
-    uint32_t wdt_osc = 0;
+  uint32_t wdt_osc = 0;
 
 
     switch (HHD_SYSCON->MAINCLKSEL & 0x03)
@@ -277,16 +277,16 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  */
 void SystemInit (void)
 {
-    uint32_t i;
-
-    //  HHD_AFIO->PIO0_30 = 1;
-    //  HHD_GPIO0->OUT=0x0;
-    //  HHD_GPIO0->DIR=0x78000000;
-    // #if (__DEBUG_RAM)       /* Memory Mapping Setup               */
-    //   HHD_SYSCON->SYSMEMREMAP = 0x1;    /* remap to internal RAM */
-    // #else
-    //   HHD_SYSCON->SYSMEMREMAP = 0x2;    /* remap to internal FLASH */
-    // #endif
+	uint32_t i;
+	
+//  GT_AFIO->PIO0_30 = 1;
+//  GT_GPIO0->OUT=0x0;
+//  GT_GPIO0->DIR=0x78000000;
+// #if (__DEBUG_RAM)       /* Memory Mapping Setup               */
+//   GT_SYSCON->SYSMEMREMAP = 0x1;    /* remap to internal RAM */
+// #else
+//   GT_SYSCON->SYSMEMREMAP = 0x2;    /* remap to internal FLASH */
+// #endif
 
 #if 1
     /* First, below lines are for debugging only. For future release, WDT is
@@ -314,8 +314,8 @@ void SystemInit (void)
 
 
 #if (SYSOSC_SETUP)                                /* System Oscillator Setup  */
-    /* bit 0 default is crystal bypass,
-    bit1 0=0~2.5Mhz crystal input, 1=2.5~16Mhz crystal input. */
+  /* bit 0 default is crystal bypass, 
+  bit1 0=0~2.5Mhz crystal input, 1=2.5~16Mhz crystal input. */
 
     /* main system OSC run is cleared, bit 5 in PDRUNCFG register */
     HHD_SYSCON->PDRUNCFG     &= ~(1 << 8);          /* Power-up System Osc      */
@@ -390,15 +390,9 @@ void SystemInit (void)
     HHD_DAC->DAC2CTRL = 0x1048;
     HHD_DAC->DAC2BUF  = 0x1ff;
 #endif
-
+    HHD_SYSCON->SYSAPB1CLKCTRL = 0xFFFFFFFF;
     HHD_SYSCON->SYSAPB1CLKCTRL = 0;
     HHD_SYSCON->SYSAHBCLKCTRL = 0xffffffff;
-    ////  	HHD_SYSCON->SYSAHBCLKDIV = 100;
-
-    //	#ifdef ETH_100M
-    //		(*(unsigned int*)0x40021280)=0x0303;		//25M
-    //	 #else
-    //		 (*(unsigned int*)0x40021280)=0x1E1E;		//2.5M
-    //	 #endif
+   
 }
 

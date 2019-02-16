@@ -27,27 +27,27 @@ extern M_EPBOUT_STATUS  gepbout1, gepbout2;
 void USBReset ()
 {
 
-    /* Set device into default state */
-    gnDevState = DEVSTATE_DEFAULT;
+/* Set device into default state */
+gnDevState = DEVSTATE_DEFAULT;
 
-    /* Initialise descriptors */
-    InitialiseDesc ();
+/* Initialise descriptors */
+InitialiseDesc ();
 
-    /* Reset any state machines for each endpoint */
-    /* This example assumes 2 bulk IN endpoints with endpoint numbers 1,2, */
-    /* and 2 bulk out endpoints with endpoint numbers 1,2 */
-    Endpoint0 (M_EP_RESET);
+/* Reset any state machines for each endpoint */
+/* This example assumes 2 bulk IN endpoints with endpoint numbers 1,2, */
+/* and 2 bulk out endpoints with endpoint numbers 1,2 */
+Endpoint0 (M_EP_RESET);
 
-    /* Initialise endpoint status structures with endpoint numbers */
-    gepbin1.byEP = 1;
-    gepbin2.byEP = 2;
-    gepbout1.byEP = 1;
-    gepbout2.byEP = 2;
+/* Initialise endpoint status structures with endpoint numbers */
+gepbin1.byEP = 1;
+gepbin2.byEP = 2;
+gepbout1.byEP = 1;
+gepbout2.byEP = 2;
 
-    EndpointBulkIn (&gepbin1, M_EP_RESET);
-    EndpointBulkIn (&gepbin2, M_EP_RESET);
-    EndpointBulkOut (&gepbout1, M_EP_RESET);
-    EndpointBulkOut (&gepbout2, M_EP_RESET);
+EndpointBulkIn (&gepbin1, M_EP_RESET);
+EndpointBulkIn (&gepbin2, M_EP_RESET);
+EndpointBulkOut (&gepbout1, M_EP_RESET);
+EndpointBulkOut (&gepbout2, M_EP_RESET);
 
-    return;
+return;
 }

@@ -181,8 +181,7 @@ low_level_init(struct netif *netif)
   { int i;
     for(i=0; i<ETH_TXBUFNB; i++)
     {
-      ETH_DMATxDescChecksumInsertionConfig(&DMATxDscrTab[i], ETH_DMATxDesc_CIC_TCPUDPICMP_Full);
-	  ETH_DMATxDescCRCCmd(&DMATxDscrTab[i], ENABLE);
+      ETH_DMATxDescChecksumInsertionConfig(&DMATxDscrTab[i], ETH_DMATxDesc_ChecksumTCPUDPICMPFull);
     }
   }
 #endif
@@ -228,8 +227,7 @@ void data_printf(uint8_t *data, int len)
  *       dropped because of memory failure (except for the TCP timers).
  */
 
-static err_t
-low_level_output(struct netif *netif, struct pbuf *p)
+static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
   struct pbuf *q;
   int l = 0;
@@ -237,20 +235,14 @@ low_level_output(struct netif *netif, struct pbuf *p)
   
   for(q = p; q != NULL; q = q->next) 
   { 
-//	printf(">>> TX : \n\r");  
-//	data_printf(q->payload, q->len);
     memcpy((u8_t*)&buffer[l], q->payload, q->len);
 	l = l + q->len;
   }
-// ETH_HandleTxPkt(&buffer[0],l);
-  
-//  printf("Pkt len %d\n\r",l);
-  
+
   ETH_TxPkt_ChainMode(l);
 
   return ERR_OK;
 }
-
 
 /**
  * Should allocate a pbuf and transfer the bytes of the incoming
@@ -260,6 +252,7 @@ low_level_output(struct netif *netif, struct pbuf *p)
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
  */
+
 static struct pbuf *low_level_input(struct netif *netif)
 {
 	struct pbuf *p = NULL , *q = NULL;
@@ -267,12 +260,11 @@ static struct pbuf *low_level_input(struct netif *netif)
 	int l =0;
 	FrameTypeDef frame;
 	u8 *buffer;
-	p = NULL;
 
-	//  printf(">>  file %s on line %d\r\n", __FILE__, __LINE__);
+	p = NULL;
 	frame = ETH_RxPkt_ChainMode();
 	/* Obtain the size of the packet and put it into the "len"
-	 variable. */
+	variable. */
 	len = frame.length;
 	if(len )
 	{	  
@@ -288,9 +280,9 @@ static struct pbuf *low_level_input(struct netif *netif)
 				l = l + q->len;
 			}    
 		}
-
 		/* Set Own bit of the Rx descriptor Status: gives the buffer back to ETHERNET DMA */
 		frame.descriptor->Status = ETH_DMARxDesc_OWN; 
+
 		/* When Rx Buffer unavailable flag is set: clear it and resume reception */
 		if ((HHD_ETH->DMASR & ETH_DMASR_RBUS) != (u32)RESET)  
 		{
@@ -300,7 +292,7 @@ static struct pbuf *low_level_input(struct netif *netif)
 			HHD_ETH->DMARPDR = 0;
 		}
 	}
-	//UART1->DAT.bit.DATA='8' & 0xFF;
+
 	return p;
 }
 

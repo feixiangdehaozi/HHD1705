@@ -9,148 +9,126 @@
  *
 ******************************************************************************/
 
-#ifndef __ADC_H
+#ifndef __ADC_H 
 #define __ADC_H
 
 #include "hhd32f1xx.h"
 
 //--ADC Registers BITS Field---------------------------------------------------------------------------------------
-struct ADC_CR_BITS
-{
-    uint32_t CNVEN: 8;	 //		Enable ADC conversion value to DR0~DR7
-    uint32_t CLKDIV: 8;	// 		The APB clock (PCLK) divider
-    uint32_t BURST: 1;	 // 		Burst mode control.
-    uint32_t RSVD0: 7;	 //
-    uint32_t START: 4;	 // 		Conversion starts control.
-uint32_t EDGE:
-    1;	 // 		Edge control. This bit is significant only when the START field contains 010-111.
-    uint32_t SCMODE: 1;	//		ADC converter sample clock selection, must be 1
-    uint32_t PD: 1;  	 //    ADC Power -down
-    uint32_t DMAEN: 1;  	//    ADC DMA EN
+struct ADC_CR_BITS	{
+			uint32_t CNVEN:8;	  //		Enable ADC conversion value to DR0~DR7
+			uint32_t CLKDIV:8;	// 		The APB clock (PCLK) divider 
+			uint32_t BURST:1;	  // 		Burst mode control. 
+			uint32_t RSVD0:7;	  // 
+			uint32_t START:4;	  // 		Conversion starts control.
+			uint32_t EDGE:1;	  // 		Edge control. This bit is significant only when the START field contains 010-111. 
+			uint32_t SCMODE:1;	//		ADC converter sample clock selection, must be 1
+			uint32_t PD:1;  	  //    ADC Power -down
+	    uint32_t DMAEN:1;  	//    ADC DMA EN
 };
-union ADC_CR_REG
-{
-    uint32_t				all;
-    struct  ADC_CR_BITS		bit;
+union ADC_CR_REG {
+				uint32_t				all;
+				struct  ADC_CR_BITS		bit;
 };
 
-struct ADC_GDR_BITS
-{
-    uint32_t RESULT: 12;	//		Last conversion results
-    uint32_t CHN: 3;	   // 		Last conversion ADC channel
-    uint32_t OVERRUN: 1;	// 		Results override flag
-    uint32_t DONE: 1;	 // 		Conversion complete flag
-    uint32_t RSVD: 15;	 //
+struct ADC_GDR_BITS	{
+			uint32_t RESULT:12;	//		Last conversion results
+			uint32_t CHN:3;	    // 		Last conversion ADC channel 
+			uint32_t OVERRUN:1;	// 		Results override flag 
+			uint32_t DONE:1;	  // 		Conversion complete flag
+			uint32_t RSVD:15;	  // 
 };
-union ADC_GDR_REG
-{
-    uint32_t				all;
-    struct  ADC_GDR_BITS		bit;
+union ADC_GDR_REG {
+				uint32_t				all;
+				struct  ADC_GDR_BITS		bit;
 };
 
-struct ADC_CHSEL_BITS
-{
-    uint32_t DR0CHSEL: 4;	//		Select AD channel to be converted in DR0
-    uint32_t DR1CHSEL: 4;	//		Select AD channel to be converted in DR1
-    uint32_t DR2CHSEL: 4;	//		Select AD channel to be converted in DR2
-    uint32_t DR3CHSEL: 4;	//		Select AD channel to be converted in DR3
-    uint32_t DR4CHSEL: 4;	//		Select AD channel to be converted in DR4
-    uint32_t DR5CHSEL: 4;	//		Select AD channel to be converted in DR5
-    uint32_t DR6CHSEL: 4;	//		Select AD channel to be converted in DR6
-    uint32_t DR7CHSEL: 4;	//		Select AD channel to be converted in DR7
+struct ADC_CHSEL_BITS	{
+			uint32_t DR0CHSEL:4;	//		Select AD channel to be converted in DR0
+			uint32_t DR1CHSEL:4;	//		Select AD channel to be converted in DR1 
+			uint32_t DR2CHSEL:4;	//		Select AD channel to be converted in DR2 
+			uint32_t DR3CHSEL:4;	//		Select AD channel to be converted in DR3 
+			uint32_t DR4CHSEL:4;	//		Select AD channel to be converted in DR4 
+			uint32_t DR5CHSEL:4;	//		Select AD channel to be converted in DR5 
+			uint32_t DR6CHSEL:4;	//		Select AD channel to be converted in DR6
+			uint32_t DR7CHSEL:4;	//		Select AD channel to be converted in DR7 
 };
-union ADC_CHSEL_REG
-{
-    uint32_t				all;
-    struct  ADC_CHSEL_BITS		bit;
+union ADC_CHSEL_REG {
+				uint32_t				all;
+				struct  ADC_CHSEL_BITS		bit;
 };
 
-struct ADC_INTEN_BITS
-{
-    uint32_t INTEN: 8;	  //		Eenable interrupt when Selected DRn receive conversin result
-    uint32_t GINTEN: 1;	 //		Eenable interrupt when every conversin complete
-    uint32_t RSVD: 23;
+struct ADC_INTEN_BITS	{
+			uint32_t INTEN:8;	   //		Eenable interrupt when Selected DRn receive conversin result
+			uint32_t GINTEN:1;	 //		Eenable interrupt when every conversin complete 
+			uint32_t RSVD:23;
 };
 
-union ADC_INTEN_REG
-{
-    uint32_t				all;
-    struct  ADC_INTEN_BITS		bit;
+union ADC_INTEN_REG {
+				uint32_t				all;
+				struct  ADC_INTEN_BITS		bit;
 };
 
-struct ADC_DR_BITS
-{
-    uint32_t RESULT: 12;	//		Conversin result
-    uint32_t RSVD: 18;
-    uint32_t OVERRUN: 1;	//		Override flag
-    uint32_t DONE: 1;	 //		Conversion complete flag
+struct ADC_DR_BITS	{
+			uint32_t RESULT:12;	//		Conversin result
+			uint32_t RSVD:18;
+			uint32_t OVERRUN:1;	//		Override flag 
+			uint32_t DONE:1;	  //		Conversion complete flag 
 };
-union ADC_DR_REG
-{
-    uint32_t				all;
-    struct  ADC_DR_BITS		bit;
+union ADC_DR_REG {
+				uint32_t				all;
+				struct  ADC_DR_BITS		bit;
 };
 
-struct ADC_STAT_BITS
-{
-uint32_t DONE:
-    8;	     //These bits mirror the DONE status flags that appear in the result register for each A/D channel.
-uint32_t OVERRUN:
-    8;	   //These bits mirror the OVERRRUN status flags that appear in the result register for each A/D channel.
-    uint32_t ADINT: 1;	     //This bit is the A/D interrupt flag.
-    uint32_t HILMTFLAG0: 1;	//High limit 0 status.
-    uint32_t HILMTFLAG1: 1;	//High limit 1 status.
-    uint32_t LOLMTFLAG0: 1;	//Low limit 0 status.
-    uint32_t LOLMTFLAG1: 1;	//Low limit 1 status.
-uint32_t ADCRDY:
-    1;	   //The bit value 1 indicates ADC_ converter is ready to use after ADC is enable.
-    uint32_t RSVD: 10;
+struct ADC_STAT_BITS	{
+			uint32_t DONE:8;	      //These bits mirror the DONE status flags that appear in the result register for each A/D channel. 
+			uint32_t OVERRUN:8;	    //These bits mirror the OVERRRUN status flags that appear in the result register for each A/D channel. 
+			uint32_t ADINT:1;	      //This bit is the A/D interrupt flag.  
+			uint32_t HILMTFLAG0:1;	//High limit 0 status. 
+			uint32_t HILMTFLAG1:1;	//High limit 1 status. 
+			uint32_t LOLMTFLAG0:1;	//Low limit 0 status.
+			uint32_t LOLMTFLAG1:1;	//Low limit 1 status. 
+			uint32_t ADCRDY:1;	    //The bit value 1 indicates ADC_ converter is ready to use after ADC is enable.
+			uint32_t RSVD:10; 
 };
-union ADC_STAT_REG
-{
-    uint32_t				all;
-    struct  ADC_STAT_BITS		bit;
+union ADC_STAT_REG {
+				uint32_t				all;
+				struct  ADC_STAT_BITS		bit;
 };
 
-struct ADC_HILMT_BITS
-{
-    uint32_t HILMT0: 12;	// High Limit value0
-    uint32_t CHNSEL0: 3;	// channel to be compared with the high limit value0
-    uint32_t INTEN0: 1;	// Enable High Limit0 interrupt
-    uint32_t HILMT1: 12;	// High Limit value1
-    uint32_t CHNSEL1: 3;	// channel to be compared with the high limit value1
-    uint32_t INTEN1: 1;	// Enable High Limit1 interrupt
+struct ADC_HILMT_BITS	{
+			uint32_t HILMT0:12;	// High Limit value0
+			uint32_t CHNSEL0:3;	// channel to be compared with the high limit value0
+			uint32_t INTEN0:1;	// Enable High Limit0 interrupt 
+			uint32_t HILMT1:12;	// High Limit value1
+			uint32_t CHNSEL1:3;	// channel to be compared with the high limit value1
+			uint32_t INTEN1:1;	// Enable High Limit1 interrupt
 };
-union ADC_HILMT_REG
-{
-    uint32_t				all;
-    struct  ADC_HILMT_BITS		bit;
+union ADC_HILMT_REG {
+				uint32_t				all;
+				struct  ADC_HILMT_BITS		bit;
 };
 
-struct ADC_LOLMT_BITS
-{
-    uint32_t LOLMT0: 12;	// Low Limit value0
-    uint32_t CHNSEL0: 3;	// channel to be compared with the low limit value0
-    uint32_t INTEN0: 1;	// Enable low Limit0 interrupt
-    uint32_t LOLMT1: 12;	// low Limit value1
-    uint32_t CHNSEL1: 3;	// channel to be compared with the low limit value1
-    uint32_t INTEN1: 1;	// Enable low Limit1 interrupt
+struct ADC_LOLMT_BITS	{
+			uint32_t LOLMT0:12;	// Low Limit value0
+			uint32_t CHNSEL0:3;	// channel to be compared with the low limit value0
+			uint32_t INTEN0:1;	// Enable low Limit0 interrupt 
+			uint32_t LOLMT1:12;	// low Limit value1
+			uint32_t CHNSEL1:3;	// channel to be compared with the low limit value1
+			uint32_t INTEN1:1;	// Enable low Limit1 interrupt
 };
-union ADC_LOLMT_REG
-{
-    uint32_t				all;
-    struct  ADC_LOLMT_BITS		bit;
+union ADC_LOLMT_REG {
+				uint32_t				all;
+				struct  ADC_LOLMT_BITS		bit;
 };
 
-struct ADC_SSCR_BITS
-{
-    uint32_t ADC_TRIG: 1;	// Set this bit to trigger ADC_ to do one time conversion.
-    uint32_t RSVD: 31;
+struct ADC_SSCR_BITS	{
+			uint32_t ADC_TRIG:1;	// Set this bit to trigger ADC_ to do one time conversion.
+			uint32_t RSVD:31;
 };
-union ADC_SSCR_REG
-{
-    uint32_t				all;
-    struct  ADC_SSCR_BITS		bit;
+union ADC_SSCR_REG {
+				uint32_t				all;
+				struct  ADC_SSCR_BITS		bit;
 };
 
 /* ================================================================================ */
@@ -162,27 +140,17 @@ union ADC_SSCR_REG
   * @brief Analog-to-Digital Converter (ADC)
   */
 
-typedef struct                                                /*!< ADC Structure                                                         */
-{
-    __IO union  ADC_CR_REG
-        CR;                             /*!< ADC_ control register                                                  */
-    __IO union  ADC_GDR_REG
-        GDR;                            /*!< ADC Global Data Register                                              */
-    __IO union  ADC_CHSEL_REG
-        CHSEL;                          /*!< Channel select control register                                       */
-    __IO union  ADC_INTEN_REG
-        INTEN;                          /*!< ADC Interrupt Enable Register                                         */
-    __IO union  ADC_DR_REG
-        DR[8];                          /*!< A/D Channel 0 Data Register                                           */
-    __IO union  ADC_STAT_REG
-        STAT;                           /*!< ADC Status Register                                                   */
-    __IO union  ADC_HILMT_REG
-        HILMT;                          /*!< ADC High Limit Control Register                                       */
-    __IO union  ADC_LOLMT_REG
-        LOLMT;                          /*!< ADC Low Limit Control Register                                        */
-    __I  uint32_t  RESERVED0;
-    __IO union  ADC_SSCR_REG
-        SSCR;                            /*!< ADC software trigger convert register                                 */
+typedef struct {                                              /*!< ADC Structure                                                         */
+  __IO union  ADC_CR_REG      CR;                             /*!< ADC_ control register                                                  */
+  __IO union  ADC_GDR_REG     GDR;                            /*!< ADC Global Data Register                                              */
+  __IO union  ADC_CHSEL_REG   CHSEL;                          /*!< Channel select control register                                       */
+  __IO union  ADC_INTEN_REG   INTEN;                          /*!< ADC Interrupt Enable Register                                         */
+  __IO union  ADC_DR_REG      DR[8];                          /*!< A/D Channel 0 Data Register                                           */
+  __IO union  ADC_STAT_REG    STAT;                           /*!< ADC Status Register                                                   */
+  __IO union  ADC_HILMT_REG   HILMT;                          /*!< ADC High Limit Control Register                                       */
+  __IO union  ADC_LOLMT_REG   LOLMT;                          /*!< ADC Low Limit Control Register                                        */
+  __I  uint32_t  RESERVED0;
+  __IO union  ADC_SSCR_REG   SSCR;                            /*!< ADC software trigger convert register                                 */
 } HHD32F_ADC_TypeDef;
 
 #define		ADC1	((HHD32F_ADC_TypeDef	*) HHD_ADC1_BASE)
@@ -487,8 +455,7 @@ typedef struct                                                /*!< ADC Structure
 
 void ADC_Init(HHD32F_ADC_TypeDef *ADC, uint32_t conversionrate);
 void ADC_DeInit(HHD32F_ADC_TypeDef *ADC);
-void ADC_SetupChannels (HHD32F_ADC_TypeDef *ADC, uint32_t drxen, uint32_t channelassign,
-                        uint32_t triggermode);
+void ADC_SetupChannels (HHD32F_ADC_TypeDef *ADC, uint32_t channelassign, uint32_t triggermode);
 void ADC_SetTrigger(HHD32F_ADC_TypeDef *ADC, uint8_t triggersrc, uint8_t edge);
 void ADC_SetHighCmp0(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel);
 void ADC_SetHighCmp1(HHD32F_ADC_TypeDef *ADC, uint32_t val, uint8_t selchannel);

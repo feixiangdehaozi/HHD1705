@@ -203,7 +203,7 @@ struct CAN_ECC_BITS
 {
     uint32_t SEGMENTCODE: 5;           //Segment coede err
 uint32_t DIRECTION:
-    1;             //If ??1?¡¥, the error occurred during reception. If ??0?¡¥, the error occurred during transmission.
+    1;             //If ??1?Â¡Â¥, the error occurred during reception. If ??0?Â¡Â¥, the error occurred during transmission.
 uint32_t ERRORCODE:
     2;             //00:Bit erro, 01:Bit Form erro, 10:Stuff error 11:Some other type of error
     uint32_t RSVD: 24;	                //31:8 reserved
@@ -436,7 +436,7 @@ void CAN_ClearStatus(HHD32F1_CAN_TypeDef *can, uint32_t clrbit);
 void CAN_SetCMD(HHD32F1_CAN_TypeDef *can, uint32_t cmddata);
 void CAN_ClrCMD(HHD32F1_CAN_TypeDef *can, uint32_t cmddata);
 
-/* end __CAN */
+ /* end __CAN */
 /*****************************************************************************
 **                            End Of File
 ******************************************************************************/

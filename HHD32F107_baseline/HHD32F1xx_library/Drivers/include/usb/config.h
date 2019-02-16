@@ -140,41 +140,38 @@
 */
 
 /* Configuration 1 */
-typedef struct M_CFG_1
-{
-    STD_CFG_DSCR  stdcfg;         /* Required Standard Configuration Descriptor */
-    STD_IF_DSCR   stdif00;        /* Interface 0 Descriptor */
-    STD_EP_DSCR   stdep00_0;      /* 1st Endpoint Descriptor for Interface 0 */
-    STD_EP_DSCR   stdep00_1;      /* 2nd Endpoint Descriptor for Interface 0 */
-    STD_IF_DSCR   stdif10;        /* Interface 1 Alternate 0 Descriptor */
-    STD_EP_DSCR   stdep10_0;      /* 1st Endpoint Descriptor for Interface 1 */
-    STD_EP_DSCR   stdep10_1;      /* 2nd Endpoint Descriptor for Interface 1 */
-    STD_IF_DSCR   stdif11;        /* Interface 1 Alternate 1 Descriptor */
-    STD_EP_DSCR   stdep11_0;      /* 1st Endpoint Descriptor for Interface 1 */
-    STD_EP_DSCR   stdep11_1;      /* 2nd Endpoint Descriptor for Interface 1 */
-} M_CFG_1;
-typedef M_CFG_1 *PM_CFG_1;
+typedef struct M_CFG_1 {
+  STD_CFG_DSCR  stdcfg;         /* Required Standard Configuration Descriptor */
+  STD_IF_DSCR   stdif00;        /* Interface 0 Descriptor */
+  STD_EP_DSCR   stdep00_0;      /* 1st Endpoint Descriptor for Interface 0 */
+  STD_EP_DSCR   stdep00_1;      /* 2nd Endpoint Descriptor for Interface 0 */
+  STD_IF_DSCR   stdif10;        /* Interface 1 Alternate 0 Descriptor */
+  STD_EP_DSCR   stdep10_0;      /* 1st Endpoint Descriptor for Interface 1 */
+  STD_EP_DSCR   stdep10_1;      /* 2nd Endpoint Descriptor for Interface 1 */
+  STD_IF_DSCR   stdif11;        /* Interface 1 Alternate 1 Descriptor */
+  STD_EP_DSCR   stdep11_0;      /* 1st Endpoint Descriptor for Interface 1 */
+  STD_EP_DSCR   stdep11_1;      /* 2nd Endpoint Descriptor for Interface 1 */
+  } M_CFG_1;
+typedef M_CFG_1 * PM_CFG_1;
 
 /* Configuration 2 */
-typedef struct M_CFG_2
-{
-    STD_CFG_DSCR  stdcfg;         /* Required Standard Configuration Descriptor */
-    STD_IF_DSCR   stdif00;        /* Interface 0 Descriptor */
-    STD_EP_DSCR   stdep00_0;      /* 1st Endpoint Descriptor for Interface 0 */
-    STD_EP_DSCR   stdep00_1;      /* 2nd Endpoint Descriptor for Interface 0 */
-    STD_IF_DSCR   stdif10;        /* Interface 1 Descriptor */
-    STD_EP_DSCR   stdep10_0;      /* 1st Endpoint Descriptor for Interface 1 */
-    STD_EP_DSCR   stdep10_1;      /* 2nd Endpoint Descriptor for Interface 1 */
-} M_CFG_2;
-typedef M_CFG_2 *PM_CFG_2;
+typedef struct M_CFG_2 {
+  STD_CFG_DSCR  stdcfg;         /* Required Standard Configuration Descriptor */
+  STD_IF_DSCR   stdif00;        /* Interface 0 Descriptor */
+  STD_EP_DSCR   stdep00_0;      /* 1st Endpoint Descriptor for Interface 0 */
+  STD_EP_DSCR   stdep00_1;      /* 2nd Endpoint Descriptor for Interface 0 */
+  STD_IF_DSCR   stdif10;        /* Interface 1 Descriptor */
+  STD_EP_DSCR   stdep10_0;      /* 1st Endpoint Descriptor for Interface 1 */
+  STD_EP_DSCR   stdep10_1;      /* 2nd Endpoint Descriptor for Interface 1 */
+  } M_CFG_2;
+typedef M_CFG_2 * PM_CFG_2;
 
 /* Top level structure containing pointers to each configuration */
-typedef struct M_CFG
-{
-    PM_CFG_1      pcfg1;          /* Pointer to M_CFG_1 */
-    PM_CFG_2      pcfg2;          /* Pointer to M_CFG_2 */
-} M_CFG;
-typedef M_CFG *PM_CFG;
+typedef struct M_CFG {
+  PM_CFG_1      pcfg1;          /* Pointer to M_CFG_1 */
+  PM_CFG_2      pcfg2;          /* Pointer to M_CFG_2 */
+  } M_CFG;
+typedef M_CFG * PM_CFG;
 
 #endif /* _CONFIG_H_ */
 

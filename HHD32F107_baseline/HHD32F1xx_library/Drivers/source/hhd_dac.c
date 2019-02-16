@@ -42,14 +42,14 @@ void DAC_Init(HHD32F_DAC_TypeDef *DAC, uint32_t conversionrate, uint32_t mode)
     //caculate clk divider
     div = SystemCoreClock / conversionrate;
 
-    //set up divider
-    (*DAC).CR.bit.DIV   = div;
-    (*DAC).CR.bit.DACEN = 1;
+	//set up divider
+  (*DAC).CR.bit.DIV   = div;
+  (*DAC).CR.bit.DACEN = 1;
 
-    //Set default DAC as BURST mode.
-    (*DAC).CR.bit.MODE = mode;
+	//Set default DAC as BURST mode.
+	(*DAC).CR.bit.MODE = mode;
 
-    return;
+	return;
 }
 /*****************************************************************************
 Function Name	DAC_DeInit
@@ -60,19 +60,19 @@ Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 void DAC_DeInit(HHD32F_DAC_TypeDef *DAC)
 {
-
-    (*DAC).CR.all = 0;
-
-    //Power down DAC
-    (*SYSCON).PDRUNCFG.bit.DAC_PD = 1;
-
-    //DISABLEDACCLK;
-
-    return;
+	
+	(*DAC).CR.all=0;
+	
+	//Power down DAC
+	(*SYSCON).PDRUNCFG.bit.DAC_PD = 1;
+	
+  //DISABLEDACCLK;
+	
+	return;
 }
 
 /*****************************************************************************
@@ -80,48 +80,48 @@ Function Name	DAC_EnableInt
 Function Definition	Void DAC_EnableInt
 Function Description	Setup DAC Buffer interrupt
 Input Parameters		inttype: combination of interrupt source-
-
+										
 Return Value	No
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 void DAC_EnableInt(HHD32F_DAC_TypeDef *DAC)
 {
-    (*DAC).CR.bit.INTEN =  1;
-    return;
+	(*DAC).CR.bit.INTEN =  1;
+	return;
 }
 /*****************************************************************************
 Function Name	DAC_SendData
 Function Definition	uint32_t DAC_SendData(uint16_t dr)
-Function Description	Send data
-Input Parameters	dr:
+Function Description	Send data 
+Input Parameters	dr: 
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 void DAC_SendData(HHD32F_DAC_TypeDef *DAC, uint16_t dr)
 {
-    (*DAC).BUF.all = dr;
+		(*DAC).BUF.all=dr;
 }
 
 /*****************************************************************************
 Function Name	DAC_SendData
 Function Definition	uint32_t DAC_SendData(uint16_t dr)
-Function Description	Send data
-Input Parameters	dr:
+Function Description	Send data 
+Input Parameters	dr: 
 Condition	No
 Function called	-
 
-Last Chang Date: 2015/09/12
+Last Chang Date: 2015/09/12	
 *****************************************************************************/
 uint32_t Get_DACBufferState(HHD32F_DAC_TypeDef *DAC)
 {
-    uint32_t state;
-    state = (*DAC).CR.bit.BUFSTAT;
-    return state;
+	uint32_t state;
+	state = (*DAC).CR.bit.BUFSTAT;
+	return state;
 }
 
 
