@@ -103,7 +103,7 @@ void Ethernet_Configuration(void)
 #endif
 	
 #ifdef MII_MODE
-	(*(unsigned int*)0x40021280)=0x0303;		//25M	
+	(*(unsigned int*)0x40021280) |= 0x10000;	// TX_CLK使用PHY所供的时钟	
 	SYSCON->GMACCTRL.bit.MODE = 0;  			//0是MII模式
 #else
 	SYSCON->GMACCTRL.bit.MODE = 4;				//4是RMII MODE
@@ -124,7 +124,7 @@ void Ethernet_Configuration(void)
 
   /* Wait for software reset */
   timeout = Get_Tick();
-  while ((ETH_GetSoftwareResetStatus() == SET) && (Get_Tick()-timeout) < ETH_TIMEOUT )
+  while ((ETH_GetSoftwareResetStatus() == SET) /*&& (Get_Tick()-timeout) < ETH_TIMEOUT*/ )
   {
 	
   }
